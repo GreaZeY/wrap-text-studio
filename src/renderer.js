@@ -110,19 +110,27 @@ export function resizeCanvases() {
   state.previousLeftEdges = null;
 }
 
-export function drawAsciiFrame(videoSource, viewportWidth, viewportHeight, gridCols, gridRows, cellW, cellH, silhouetteOffsetX, asciiRGB) {
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, videoTexture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, videoSource);
-  gl.uniform2f(uniforms.resolution, viewportWidth, viewportHeight);
-  gl.uniform2f(uniforms.cellSize, cellW, cellH);
-  gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
-  gl.uniform2f(uniforms.silOffset, silhouetteOffsetX, 0);
-  gl.uniform1f(uniforms.numChars, state.asciiRamp.length);
-  if (asciiRGB) {
-    gl.uniform3f(uniforms.asciiColor, asciiRGB[0], asciiRGB[1], asciiRGB[2]);
-  }
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+import { OriginalRenderer } from './renderers/original.js';
+import { AsciiRenderer } from './renderers/ascii.js';
+import { GrayscaleRenderer } from './renderers/grayscale.js';
+
+// Registry of available rendering strategies
+const STYLE_RENDERERS = {
+  ascii: AsciiRenderer,
+  original: OriginalRenderer,
+  grayscale: GrayscaleRenderer
+};
+
+export function renderStyleFrame(params) {
+  const strategy = STYLE_RENDERERS[state.artStyle] || STYLE_RENDERERS.ascii;
+  strategy.render({ 
+    gl, 
+    ctx: ctx2d, 
+    videoTexture, 
+    uniforms,
+    asciiRampLength: state.asciiRamp.length,
+    ...params
+  });
 }
 
 export function clearComposite(width, height) {

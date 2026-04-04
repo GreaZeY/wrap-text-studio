@@ -36,16 +36,30 @@
                     </div>
                 </div>
             </section>
-            
+
             <section class="panel">
-                <h3>ASCII Engine</h3>
+                <h3>Visual Mode</h3>
                 <div class="control">
-                    <label>ASCII Font Size: <span id="asciiScaleVal">4</span>px</label>
-                    <input type="range" class="slider" id="asciiScale" min="2" max="64" value="4">
+                    <div class="dropdown" id="artStyleDropdown">
+                        <div class="dropdown-header"><span>ASCII</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
+                        <ul class="dropdown-list">
+                            <li data-value="ascii" class="selected">ASCII</li>
+                            <li data-value="original">Original</li>
+                            <li data-value="grayscale">Grayscale</li>
+                        </ul>
+                        <input type="hidden" id="artStyle" value="ascii">
+                    </div>
                 </div>
-                <div class="control">
-                    <label>Character Set</label>
-                    <input type="text" class="input" id="asciiRamp" value="wesker" spellcheck="false">
+
+                <div id="asciiSettingsSection">
+                    <div class="control">
+                        <label>ASCII Font Size: <span id="asciiScaleVal">4</span>px</label>
+                        <input type="range" class="slider" id="asciiScale" min="2" max="64" value="4">
+                    </div>
+                    <div class="control">
+                        <label>Character Set</label>
+                        <input type="text" class="input" id="asciiRamp" value="wesker" spellcheck="false">
+                    </div>
                 </div>
             </section>
 

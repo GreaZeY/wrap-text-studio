@@ -1,7 +1,7 @@
 import { prepareWithSegments, layoutNextLine as layout } from '@chenglou/pretext';
 import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 import { state } from './state.js';
-import { gl, asciiCanvas, videoTexture, uniforms } from './renderer.js';
+import { gl, asciiCanvas, videoTexture, uniforms, renderStyleFrame } from './renderer.js';
 import { detectSilhouette } from './silhouette.js';
 import { renderStaticLayout } from './text-layout.js';
 import { resizeCanvases } from './renderer.js';
@@ -180,7 +180,7 @@ export async function startExport(videoElement) {
   let currentFrame = 0;
   const totalFrames = Math.floor(offlineVideo.duration * 30);
 
-  async function burnFrame() {
+  async function burnFrame(now, metadata) {
     if (!isExporting) return;
 
     const textCursor = { segmentIndex: 0, graphemeIndex: 0 };
@@ -191,21 +191,28 @@ export async function startExport(videoElement) {
 
     const rgb = hexToRgb(fontColor);
 
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, videoTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offlineVideo);
-    gl.uniform2f(uniforms.resolution, targetWidth, targetHeight);
-    gl.uniform2f(uniforms.cellSize, charW * fontScale, charH * fontScale);
-    gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
-    gl.uniform2f(uniforms.silOffset, 0, 0);
-    gl.uniform1f(uniforms.numChars, state.asciiRamp.length);
-    gl.uniform3f(uniforms.asciiColor, rgb[0]/255, rgb[1]/255, rgb[2]/255);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    renderStyleFrame({
+      gl,
+      ctx: renderCtx,
+      videoSource: offlineVideo,
+      viewportWidth: targetWidth,
+      viewportHeight: targetHeight,
+      gridCols,
+      gridRows,
+      charW: charW * fontScale,
+      charH: charH * fontScale,
+      silhouetteOffsetX: 0,
+      asciiRGB: [rgb[0]/255, rgb[1]/255, rgb[2]/255]
+    });
 
-    renderCtx.drawImage(asciiCanvas, 0, 0);
+    if (state.artStyle === 'ascii') {
+       renderCtx.drawImage(asciiCanvas, 0, 0);
+    }
 
     const silhouette = detectSilhouette(targetWidth, targetHeight, charW * fontScale, charH * fontScale, offlineVideo);
 
+    // Use a stable frame-based timestamp starting at zero for maximum player compatibility
+    const timestamp = currentFrame * (1000000 / 30);
     renderCtx.textBaseline = "top";
     renderCtx.font = scaledFont;
     renderCtx.fillStyle = fontColor;
@@ -260,7 +267,7 @@ export async function startExport(videoElement) {
       yPosition += scaledLineHeight;
     }
 
-    const timestamp = currentFrame * (1000000 / 30);
+    // Use passed timestamp from WebCodecs
     const frame = new VideoFrame(renderCanvas, { timestamp });
     videoEncoder.encode(frame);
     frame.close();

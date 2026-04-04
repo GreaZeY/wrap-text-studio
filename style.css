@@ -446,9 +446,6 @@ body {
 .slider:hover::-webkit-slider-thumb { transform: scale(1.2); box-shadow: 0 0 10px var(--accent-red); }
 
 /* ── Styling Panel ───────────────────────────────────────── */
-.panel .control {
-    margin-bottom: 20px;
-}
 
 .panel label {
     display: block;

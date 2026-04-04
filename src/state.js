@@ -7,7 +7,8 @@ export const state = {
   currentFontSpec: '17px "Poppins", sans-serif',
   currentLineHeight: 24,
 
-  cellDimensions: { charW: 7, charH: 14 },
+  asciiFontSize: 4,
+  cellDimensions: { charW: 2, charH: 4 },
 
   parsedLayout: null,
 
@@ -20,5 +21,6 @@ export const state = {
   previousLeftEdges: null,
   previousRightEdges: null,
   asciiRamp: "wesker",
+  artStyle: "ascii",
   sidebarOpen: true,
 };

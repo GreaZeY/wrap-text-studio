@@ -28,6 +28,7 @@ function initInactivityTimer() {
 }
 
 export function bindAllControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback) {
+  bindArtStyleControl();
   bindTypographyControls(refreshTextCallback);
   bindBoldItalicToggles();
   bindFileUpload(videoElement);
@@ -195,6 +196,52 @@ function bindSliderFillTracking() {
     const el = document.getElementById(id);
     el.addEventListener('input', () => updateSliderFill(el));
   });
+}
+
+function bindArtStyleControl() {
+  const artStyleInput = document.getElementById('artStyle');
+  const asciiSection = document.getElementById('asciiSettingsSection');
+  
+  if (!artStyleInput || !asciiSection) return;
+
+  const updateVisibility = (val) => {
+    state.artStyle = val;
+    
+    // Clear both canvases when switching modes to prevent ghosting
+    const asciiCanvas = document.getElementById('textmodeCanvas');
+    const displayCanvas = document.getElementById('canvasDisplay');
+    if (asciiCanvas) {
+      const gl = asciiCanvas.getContext('webgl');
+      if (gl) {
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+      }
+    }
+    if (displayCanvas) {
+      const ctx = displayCanvas.getContext('2d');
+      ctx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
+    }
+
+    if (state.artStyle === 'ascii') {
+      asciiSection.style.display = 'block';
+    } else {
+      asciiSection.style.display = 'none';
+    }
+    state.needsRedraw = true;
+  };
+
+  artStyleInput.addEventListener('input', (e) => updateVisibility(e.target.value));
+  
+  // Initial run
+  updateVisibility(artStyleInput.value);
+}
+
+function clearDisplayCanvas() {
+  const canvas = document.getElementById('canvasDisplay');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
 function updateSliderFill(slider) {

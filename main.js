@@ -1,6 +1,6 @@
 import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './src/state.js';
-import { resizeCanvases, drawAsciiFrame, clearComposite } from './src/renderer.js';
+import { resizeCanvases, renderStyleFrame, clearComposite } from './src/renderer.js';
 import { detectSilhouette, hasSilhouetteChanged } from './src/silhouette.js';
 import { placeTextAroundSilhouette, renderStaticLayout } from './src/text-layout.js';
 import { bindAllControls, applyTextStyles, hexToRgb } from './src/ui.js';
@@ -35,14 +35,28 @@ function renderFrame() {
   const colorHex = document.getElementById('textColor')?.value || "#ffffff";
   const rgb = hexToRgb(colorHex);
 
-  drawAsciiFrame(videoElement, viewportWidth, viewportHeight, gridCols, gridRows, charW, charH, silhouetteOffsetX, rgb);
+  // 1. Clear composite canvas first
+  clearComposite(viewportWidth, viewportHeight);
 
+  // 2. Draw the style frame
+  renderStyleFrame({ 
+    videoSource: videoElement, 
+    viewportWidth, 
+    viewportHeight, 
+    gridCols, 
+    gridRows, 
+    charW, 
+    charH, 
+    silhouetteOffsetX, 
+    asciiRGB: rgb 
+  });
+
+  // 3. Handle silhouette and text updates
   state.frameCount++;
   if (state.frameCount % SILHOUETTE_REFRESH_INTERVAL === 0 || !state.previousLeftEdges || state.needsRedraw) {
     const silhouette = detectSilhouette(scaledWidth, scaledHeight, charW, charH, videoElement);
 
     if (hasSilhouetteChanged(silhouette.leftEdges, silhouette.rightEdges, state.previousLeftEdges, state.previousRightEdges) || state.needsRedraw) {
-      clearComposite(viewportWidth, viewportHeight);
       placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewportWidth, viewportHeight);
       state.previousLeftEdges = silhouette.leftEdges.slice();
       state.previousRightEdges = silhouette.rightEdges.slice();
