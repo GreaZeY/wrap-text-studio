@@ -15,6 +15,8 @@
     "vite": "^8.0.3"
   },
   "dependencies": {
-    "@chenglou/pretext": "^0.0.4"
+    "@chenglou/pretext": "^0.0.4",
+    "webm-muxer": "^5.1.4",
+    "webm-writer": "^1.0.0"
   }
 }

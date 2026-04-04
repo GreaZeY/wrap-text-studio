@@ -1,4 +1,5 @@
 import { prepareWithSegments, layoutNextLine as layout } from '@chenglou/pretext';
+import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 import { state } from './state.js';
 import { gl, asciiCanvas, videoTexture, uniforms } from './renderer.js';
 import { detectSilhouette } from './silhouette.js';
@@ -11,8 +12,9 @@ const SILHOUETTE_PADDING = 6;
 const MIN_TEXT_REGION_WIDTH = 40;
 
 let isExporting = false;
-let mediaRecorder = null;
-let recordedChunks = [];
+let muxer = null;
+let videoEncoder = null;
+let audioEncoder = null;
 
 const exportModal = document.getElementById('exportModal');
 const btnStartExport = document.getElementById('btnStartExport');
@@ -39,7 +41,6 @@ export function cancelExport() {
 export async function startExport(videoElement) {
   if (isExporting) return;
   isExporting = true;
-  recordedChunks = [];
 
   btnStartExport.disabled = true;
   btnCancelExport.disabled = true;
@@ -53,7 +54,7 @@ export async function startExport(videoElement) {
   const offlineVideo = document.createElement("video");
   offlineVideo.crossOrigin = "anonymous";
   offlineVideo.src = videoElement.src;
-  offlineVideo.muted = !includeAudio;
+  offlineVideo.muted = true;
   offlineVideo.playsInline = true;
 
   await new Promise(resolve => {
@@ -72,65 +73,62 @@ export async function startExport(videoElement) {
   renderCanvas.height = targetHeight;
   const renderCtx = renderCanvas.getContext("2d", { willReadFrequently: true });
   
-  // High quality context settings
-  renderCtx.imageSmoothingEnabled = true;
-  renderCtx.imageSmoothingQuality = 'high';
-
-  let stream;
-  if (includeAudio) {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const destination = audioCtx.createMediaStreamDestination();
-    const source = audioCtx.createMediaElementSource(offlineVideo);
-    source.connect(destination);
-    source.connect(audioCtx.destination);
-    offlineVideo.volume = 1;
-
-    const videoStream = renderCanvas.captureStream(30); // Stabilize at 30 FPS
-    const tracks = [...videoStream.getVideoTracks(), ...destination.stream.getAudioTracks()];
-    stream = new MediaStream(tracks);
-  } else {
-    stream = renderCanvas.captureStream(30); // Stabilize at 30 FPS
-  }
-
-  // Ultra-High Quality Scaling: 1080p (50M), 720p (25M), 480p (10M)
   const bitrate = targetHeight >= 1080 ? 50000000 : (targetHeight >= 720 ? 25000000 : 10000000);
-  
-  const options = { 
-    mimeType: 'video/webm;codecs=vp9',
-    videoBitsPerSecond: bitrate 
-  };
-  
-  // High-performance fallback
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-    options.mimeType = 'video/webm;codecs=vp8';
+
+  let audioBuffer = null;
+  if (includeAudio) {
+    try {
+      statusText.textContent = "Extracting Audio...";
+      progressContainer.style.display = 'block';
+      const response = await fetch(videoElement.src);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    } catch (e) {
+      console.warn("Audio extraction failed, exporting without audio:", e);
+    }
   }
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-    options.mimeType = 'video/webm';
+
+  muxer = new Muxer({
+    target: new ArrayBufferTarget(),
+    video: {
+      codec: 'V_VP9',
+      width: targetWidth,
+      height: targetHeight
+    },
+    audio: audioBuffer ? {
+      codec: 'A_OPUS',
+      sampleRate: audioBuffer.sampleRate,
+      numberOfChannels: audioBuffer.numberOfChannels
+    } : undefined,
+    firstTimestampBehavior: 'offset'
+  });
+
+  videoEncoder = new VideoEncoder({
+    output: (chunk, metadata) => muxer.addVideoChunk(chunk, metadata),
+    error: (e) => console.error("VideoEncoder error:", e)
+  });
+
+  videoEncoder.configure({
+    codec: 'vp09.00.10.08', // VP9 Profile 0
+    width: targetWidth,
+    height: targetHeight,
+    bitrate: bitrate
+  });
+
+  if (audioBuffer) {
+    audioEncoder = new AudioEncoder({
+      output: (chunk, metadata) => muxer.addAudioChunk(chunk, metadata),
+      error: (e) => console.error("AudioEncoder error:", e)
+    });
+
+    audioEncoder.configure({
+      codec: 'opus',
+      sampleRate: audioBuffer.sampleRate,
+      numberOfChannels: audioBuffer.numberOfChannels,
+      bitrate: 128000
+    });
   }
-
-  mediaRecorder = new MediaRecorder(stream, options);
-
-  mediaRecorder.ondataavailable = (e) => {
-    if (e.data.size > 0) recordedChunks.push(e.data);
-  };
-
-  mediaRecorder.onstop = () => {
-    const blob = new Blob(recordedChunks, { type: options.mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `wrap-studio-${targetHeight}p-${Date.now()}.webm`;
-    link.click();
-
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-    isExporting = false;
-    exportModal.close();
-    resizeCanvases();
-
-    const container = document.getElementById("videoContainer");
-    renderStaticLayout(container.clientWidth, container.clientHeight);
-  };
 
   const fontScale = targetHeight / savedHeight;
   const scaledLineHeight = (state.currentLineHeight) * fontScale;
@@ -140,7 +138,10 @@ export async function startExport(videoElement) {
   const exportLayout = prepareWithSegments(state.storyText, scaledFont);
   const { charW, charH } = state.cellDimensions;
 
-  function burnFrame() {
+  let currentFrame = 0;
+  const totalFrames = Math.floor(offlineVideo.duration * 30);
+
+  async function burnFrame() {
     if (!isExporting) return;
 
     const textCursor = { segmentIndex: 0, graphemeIndex: 0 };
@@ -220,15 +221,73 @@ export async function startExport(videoElement) {
       yPosition += scaledLineHeight;
     }
 
-    const progress = (offlineVideo.currentTime / offlineVideo.duration) * 100;
-    progressBar.style.width = `${progress}%`;
-    statusText.textContent = `${Math.floor(progress)}% Compiled`;
+    // Capture the frame using WebCodecs (Hardware accelerated)
+    const timestamp = currentFrame * (1000000 / 30); // 30 FPS in microseconds
+    const frame = new VideoFrame(renderCanvas, { timestamp });
+    
+    // Encode the frame immediately
+    videoEncoder.encode(frame);
+    frame.close(); // Crucial: free GPU/memory resources
+    
+    currentFrame++;
 
-    offlineVideo.requestVideoFrameCallback(burnFrame);
+    const progress = (currentFrame / totalFrames) * 100;
+    progressBar.style.width = `${Math.min(100, progress)}%`;
+    statusText.textContent = `${Math.floor(progress)}% Optimized`;
+
+    if (currentFrame < totalFrames) {
+      offlineVideo.currentTime = currentFrame / 30;
+      offlineVideo.requestVideoFrameCallback(burnFrame);
+    } else {
+      // Encode Audio if present
+      if (audioEncoder && audioBuffer) {
+        statusText.textContent = "Finalizing Audio...";
+        const samplesPerFrame = Math.floor(audioBuffer.sampleRate / 10); // 100ms chunks
+        for (let i = 0; i < audioBuffer.length; i += samplesPerFrame) {
+          const frameCount = Math.min(samplesPerFrame, audioBuffer.length - i);
+          const data = new Float32Array(frameCount * audioBuffer.numberOfChannels);
+          for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+            const channelData = audioBuffer.getChannelData(ch);
+            for (let s = 0; s < frameCount; s++) {
+              data[s * audioBuffer.numberOfChannels + ch] = channelData[i + s];
+            }
+          }
+
+          audioEncoder.encode(new AudioData({
+            format: 'f32',
+            sampleRate: audioBuffer.sampleRate,
+            numberOfFrames: frameCount,
+            numberOfChannels: audioBuffer.numberOfChannels,
+            timestamp: (i / audioBuffer.sampleRate) * 1000000,
+            data: data
+          }));
+        }
+        await audioEncoder.flush();
+      }
+
+      // Finalize the muxer and encoder
+      await videoEncoder.flush();
+      muxer.finalize();
+      
+      const { buffer } = muxer.target;
+      const blob = new Blob([buffer], { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `wrap-studio-${targetHeight}p-${Date.now()}.webm`;
+      link.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      isExporting = false;
+      exportModal.close();
+      resizeCanvases();
+
+      const container = document.getElementById("videoContainer");
+      renderStaticLayout(container.clientWidth, container.clientHeight);
+    }
   }
 
-  mediaRecorder.start();
-  offlineVideo.onended = () => { mediaRecorder.stop(); };
-  offlineVideo.play();
+  offlineVideo.currentTime = 0;
   offlineVideo.requestVideoFrameCallback(burnFrame);
 }
