@@ -205,13 +205,13 @@ function updateSliderFill(slider) {
 }
 
 function bindCustomDropdowns() {
-  document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+  document.querySelectorAll('.dropdown').forEach(dropdown => {
     const header = dropdown.querySelector('.dropdown-header');
     const headerText = header.querySelector('span');
     const hiddenInput = dropdown.querySelector('input[type="hidden"]');
 
     header.addEventListener('click', (e) => {
-      document.querySelectorAll('.custom-dropdown').forEach(d => {
+      document.querySelectorAll('.dropdown').forEach(d => {
         if (d !== dropdown) d.classList.remove('open');
       });
       dropdown.classList.toggle('open');
@@ -233,7 +233,7 @@ function bindCustomDropdowns() {
   });
 
   document.addEventListener('click', () => {
-    document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
   });
 }
 
@@ -242,10 +242,10 @@ function bindPlayerControls(videoElement, renderFrameCallback, resizeCallback) {
   const seekSlider = document.getElementById('seekSlider');
   const timeDisplay = document.getElementById('timeDisplay');
 
-  playPauseBtn.addEventListener('click', () => {
+    playPauseBtn.addEventListener('click', () => {
     if (!state.isRendering) {
       state.isRendering = true;
-      videoElement.play().catch(e => console.error("Playback restricted", e));
+      videoElement.play();
       videoElement.requestVideoFrameCallback(renderFrameCallback);
       playPauseBtn.innerHTML = PAUSE_ICON;
       state.isPlaying = true;

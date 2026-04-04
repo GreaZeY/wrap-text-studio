@@ -65,27 +65,29 @@ window.addEventListener("resize", () => {
   }
 });
 
-videoElement.addEventListener("loadeddata", () => {
-  resizeCanvases();
-  if (state.storyText) {
-    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
-  }
-  const container = document.getElementById("videoContainer");
-  renderStaticLayout(container.clientWidth, container.clientHeight);
-});
-
 bindAllControls(videoElement, onVideoFrame, resizeCanvases, renderFrame);
 
+function initLayout() {
+  window.dispatchEvent(new Event('resize'));
+  const container = document.getElementById("videoContainer");
+  if (container && container.clientWidth > 0) {
+    resizeCanvases();
+    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
+    renderStaticLayout(container.clientWidth, container.clientHeight);
+    applyTextStyles(() => {});
+  }
+}
+
+videoElement.addEventListener("loadeddata", initLayout);
 videoElement.src = state.initialVideoSrc;
 
-setTimeout(() => {
-  applyTextStyles(() => {});
+// Safety fallback for cached video or fast layout
+setTimeout(initLayout, 200);
 
-  const editor = document.getElementById('textEditor');
-  if (editor) editor.value = state.storyText;
-  
-  state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
-  
-  const loader = document.getElementById('statusLabel');
-  if (loader) loader.style.display = 'none';
-}, 500);
+const editor = document.getElementById('textEditor');
+if (editor) editor.value = state.storyText;
+
+state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
+
+const loader = document.getElementById('statusLabel');
+if (loader) loader.style.display = 'none';
