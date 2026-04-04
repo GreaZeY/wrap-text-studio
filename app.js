@@ -120,7 +120,127 @@ M.uniform1i(x6, 1);
 M.uniform3f(o6, 0.055, 0.055, 0.055);
 
 // ====== Text Configuration ======
-let $5 = ["Rick Astley, born Richard Paul Astley on February 6, 1966, in Newton-le-Willows, Lancashire, England, is a singer, songwriter, and radio personality who became one of the most iconic figures in pop music history. He grew up in a working-class family and developed a passion for music at an early age, joining the local church choir as a boy. At fifteen he joined a local band called Give Way, and by eighteen he was discovered by legendary producer Pete Waterman, who invited him to work at the famous PWL Studios in London. At first, Astley was making tea and learning the ropes, but Waterman quickly recognized his extraordinary baritone voice, which was remarkably deep and soulful for such a young man. In 1987, his debut single Never Gonna Give You Up was released and immediately shot to number one in twenty-five countries, making it one of the best-selling singles of all time. The song was written and produced by the hitmaking trio Stock Aitken Waterman, who crafted its irresistibly catchy synth-pop melody and driving beat. The music video, featuring Astley's now-legendary dance moves in a long trench coat, became one of the most recognizable videos in music history. His debut album Whenever You Need Somebody sold over fifteen million copies worldwide. Astley followed up with more hits including Together Forever, which also reached number one in the United States, making him one of the few artists to have their first two singles both reach the top of the Billboard Hot 100. He continued releasing music throughout the late 1980s with albums like Hold Me in Your Arms and Free, but by the early 1990s he had grown tired of the music industry and the lack of creative control he felt over his own work. In 1993, he made the surprising decision to retire from music at the age of just twenty-seven to focus on raising his daughter, Emilie. He largely disappeared from public life, living quietly in suburban England, gardening, and enjoying family life for over a decade. Then in 2007, something remarkable happened. An internet phenomenon known as Rickrolling emerged, in which unsuspecting internet users would click on a link expecting one thing but would instead be redirected to the music video for Never Gonna Give You Up. The prank spread like wildfire across forums, social media, and even mainstream events. The original music video has since accumulated over a billion views on YouTube, making it one of the most-watched videos on the platform. Astley himself has said he finds the whole thing hilarious and flattering, though he reportedly earned very little from the initial viral surge due to the way his original recording contract was structured. In 2008, he was voted Best Act Ever at the MTV Europe Music Awards through an online campaign that was itself essentially a massive Rickroll. The renewed attention led Astley back into music and performing. He released the album 50 in 2016, which debuted at number one on the UK Albums Chart, his first chart-topping album in nearly thirty years. The album showcased a more mature, soulful sound that demonstrated his growth as an artist and songwriter. He has since become a beloved fixture of British pop culture, performing at festivals, charity events, and television shows. In 2020 he joined Reddit and became one of its most popular users, embracing the internet culture that had adopted him. He is known for being genuinely kind, self-deprecating, and good-humored about his unusual path to lasting fame. His voice remains remarkably powerful and distinctive, and live performances showcase a vocal talent that transcends the bubblegum pop production of his early hits. Astley has spoken openly about how stepping away from fame was the best decision he ever made, as it allowed him to develop as a person and return to music on his own terms. He continues to tour, record, and connect with fans both old and new, bridging generations through the universal appeal of his music and the sheer joy of the Rickroll. Beyond music, Astley is an avid photographer, a passionate gardener, and a devoted family man. He has remained married to his partner Lene Bausager, a Danish film producer, and they live together in London. His story is one of pop culture's great second acts: a man who walked away from global fame, found himself, and then was reclaimed by the internet as an enduring symbol of wholesome mischief and musical nostalgia. The cultural impact of Rickrolling has been analyzed by academics and media theorists as one of the first truly global internet memes, predating the modern era of viral content and influencing how we think about surprise, humor, and shared experience online. Rick Astley did not just become a meme. He became THE meme. And through it all, he never gave us up, never let us down, never ran around, and never deserted us. "];
+let $5 = [`7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over 7 minutes, 7 minutes is all i can spare to play with you.
+Here i am offering you my precious time and you waste it by running around ohh
+Playtime's Over`];
 
 // Global font tracking dynamically hooks into UI panel!
 window.curV0 = '17px "Crimson Pro", serif';
@@ -262,9 +382,7 @@ function M5(J, Q, $, X) {
             let h = b - z;
             if (h < 40) continue;
             let S = window.b0(Y0, D, h);
-            if (!S) {
-                if (D = { segmentIndex: 0, graphemeIndex: 0 }, S = window.b0(Y0, D, h), !S) break;
-            }
+            if (!S) break;
             
             // DOM Element Generation Instead of Canvas Direct Stream!
             let span = document.createElement("span");
@@ -485,13 +603,6 @@ asciiScaleSlider.addEventListener('input', (e) => {
     const max = parseFloat(e.target.max) || 64;
     asciiScaleSlider.style.setProperty('--val', ((scale - min) / (max - min)) * 100 + '%');
     
-    // Force sync the typographic Font Size visually matching our scale natively
-    const fontSizeSlider = document.getElementById('fontSize');
-    if (fontSizeSlider) {
-        fontSizeSlider.value = scale;
-        fontSizeSlider.dispatchEvent(new Event('input', {bubbles: true}));
-    }
-    
     forceRedraw = true;
     if (!U0) {
         const workspace = document.getElementById("videoContainer");
@@ -706,11 +817,11 @@ btnStartExport.addEventListener('click', async () => {
     let expFontColor = document.getElementById('textColor') ? document.getElementById('textColor').value : "#d4d0c8";
 
     let Y0_Export = window.g0 ? window.g0($5[0], expFont) : null;
-    let D_Exp = { segmentIndex: 0, graphemeIndex: 0 };
     let { charW: Y_c, charH: D_c } = f5;
     
     function burnFrame() {
         if (!exporting) return;
+        let D_Exp = { segmentIndex: 0, graphemeIndex: 0 };
         
         cctx.clearRect(0, 0, targetWidth, targetHeight);
         
@@ -767,9 +878,7 @@ btnStartExport.addEventListener('click', async () => {
                 let h = b - z;
                 if (h < (40*fontScale)) continue;
                 let S = window.b0(Y0_Export, D_Exp, h);
-                if (!S) {
-                    if (D_Exp = { segmentIndex: 0, graphemeIndex: 0 }, S = window.b0(Y0_Export, D_Exp, h), !S) break;
-                }
+                if (!S) break;
                 cctx.fillText(S.text, z, N_t);
                 D_Exp = S.end;
             }
