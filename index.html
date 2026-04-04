@@ -16,6 +16,8 @@
             <h1 class="logo">Wrap Studio</h1>
             
             <section class="panel upload-panel">
+                <img src="video-intruction.png" alt="How it works" class="instruction-preview">
+                <p class="upload-hint">Use a video with a solid-color or removed background for best results. High contrast works best.</p>
                 <div class="upload-box" id="uploadZone">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                     <span>Import Media File</span>
@@ -24,7 +26,7 @@
             </section>
             
             <section class="panel">
-                <h3>🎛️ ASCII Engine</h3>
+                <h3>ASCII Engine</h3>
                 <div class="control">
                     <label>ASCII Font Size: <span id="asciiScaleVal">4</span>px</label>
                     <input type="range" class="custom-slider" id="asciiScale" min="2" max="64" value="4">
@@ -32,12 +34,12 @@
             </section>
 
             <section class="panel">
-                <h3>📖 Custom Story</h3>
+                <h3>Custom Story</h3>
                 <textarea id="textEditor" class="custom-textarea" placeholder="Paste your story here..."></textarea>
             </section>
 
             <section class="panel styling">
-                <h3>🎨 Typography</h3>
+                <h3>Typography</h3>
                 <div class="control-grid">
                     <div class="control">
                         <label>Font Family</label>
@@ -174,6 +176,6 @@
         </main>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>

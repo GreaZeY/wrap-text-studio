@@ -72,6 +72,24 @@ body {
 .upload-panel {
   padding-bottom: 0px;
 }
+.instruction-preview {
+  width: 80%;
+  display: block;
+  margin: 0 auto 12px;
+  border-radius: 8px;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.instruction-preview:hover {
+  opacity: 1;
+}
+.upload-hint {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
 .upload-box {
   width: 100%;
   border: 2px dashed rgba(255, 255, 255, 0.15);
@@ -325,42 +343,6 @@ body {
   pointer-events: none;
   transform: none;
 }
-
-.style-toggles select {
-    flex: 1;
-}
-
-.hint {
-  font-size: 0.7rem;
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.3);
-  margin-top: 8px;
-}
-
-.instructions ul {
-  list-style: none;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.instructions li {
-  margin-bottom: 12px;
-  padding-left: 20px;
-  position: relative;
-}
-
-.instructions li::before {
-  content: '→';
-  position: absolute;
-  left: 0;
-  color: var(--re-gold);
-}
-
-.sidebar-footer {
-  margin-top: auto;
-}
-
 /* ── Main Workspace ──────────────────────────────────────── */
 .workspace {
   flex: 1;
@@ -368,36 +350,6 @@ body {
   background: black;
 }
 
-.cinematic-overlay {
-  position: absolute;
-  top: 32px;
-  width: 100%;
-  text-align: center;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.re4-title {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 3rem;
-  letter-spacing: 0.1em;
-  color: var(--re-red);
-}
-
-.re4-divider {
-  width: 200px;
-  height: 1px;
-  margin: 8px auto;
-  background: linear-gradient(to right, transparent, var(--re-amber), transparent);
-}
-
-.re4-subtitle {
-  font-family: 'Crimson Pro', serif;
-  font-size: 1rem;
-  font-style: italic;
-  color: var(--re-gold);
-  opacity: 0.7;
-}
 
 /* ── Video Display ────────────────────────────────────────── */
 .video-container {
