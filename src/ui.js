@@ -7,6 +7,26 @@ import { buildGlyphAtlas } from './renderer.js';
 const PLAY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
 const PAUSE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 
+function initInactivityTimer() {
+  let timeout;
+  const hideControls = () => {
+    document.body.classList.add('user-inactive');
+  };
+  
+  const resetTimer = () => {
+    document.body.classList.remove('user-inactive');
+    clearTimeout(timeout);
+    timeout = setTimeout(hideControls, 5000);
+  };
+
+  window.addEventListener('mousemove', resetTimer);
+  window.addEventListener('mousedown', resetTimer);
+  window.addEventListener('keydown', resetTimer);
+  window.addEventListener('touchstart', resetTimer);
+  
+  resetTimer();
+}
+
 export function bindAllControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback) {
   bindTypographyControls(refreshTextCallback);
   bindBoldItalicToggles();
@@ -19,6 +39,7 @@ export function bindAllControls(videoElement, renderFrameCallback, resizeCallbac
   bindExportControls(videoElement);
   bindTextEditor(videoElement, refreshTextCallback);
   bindSidebarToggle();
+  initInactivityTimer();
 }
 
 function bindTypographyControls(refreshTextCallback) {
