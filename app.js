@@ -481,7 +481,16 @@ asciiScaleSlider.addEventListener('input', (e) => {
     f5 = { charW: Math.floor(scale * 0.5), charH: scale };
     
     // Fill background of custom slider exactly
-    asciiScaleSlider.style.setProperty('--val', ((scale - 4) / 60) * 100 + '%');
+    const min = parseFloat(e.target.min) || 4;
+    const max = parseFloat(e.target.max) || 64;
+    asciiScaleSlider.style.setProperty('--val', ((scale - min) / (max - min)) * 100 + '%');
+    
+    // Force sync the typographic Font Size visually matching our scale natively
+    const fontSizeSlider = document.getElementById('fontSize');
+    if (fontSizeSlider) {
+        fontSizeSlider.value = scale;
+        fontSizeSlider.dispatchEvent(new Event('input', {bubbles: true}));
+    }
     
     forceRedraw = true;
     if (!U0) {

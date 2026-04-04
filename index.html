@@ -27,7 +27,7 @@
                 <h3>🎛️ ASCII Engine</h3>
                 <div class="control">
                     <label>ASCII Font Size: <span id="asciiScaleVal">12</span>px</label>
-                    <input type="range" class="custom-slider" id="asciiScale" min="2" max="20" value="4">
+                    <input type="range" class="custom-slider" id="asciiScale" min="2" max="64" value="4">
                 </div>
             </section>
 
@@ -86,12 +86,6 @@
 
         <!-- Main Workspace -->
         <main class="workspace">
-            <div class="cinematic-overlay">
-                <h1 class="re4-title" id="displayTitle">Resident Evil 4</h1>
-                <div class="re4-divider"></div>
-                <p class="re4-subtitle" id="displaySubtitle">Leon Meets Ada</p>
-            </div>
-
             <div class="video-container" id="videoContainer">
                 <div id="recordingIndicator" class="recording-indicator" style="display:none; z-index:100;"></div>
                 <!-- Media Layer (Audio/Video Source) -->
@@ -157,7 +151,7 @@
                         <div class="control-group checkbox-group">
                             <label>
                                 <input type="checkbox" id="exportAudio" checked>
-                                INCLUDE NATIVE AUDIO
+                                Include Audio
                             </label>
                         </div>
 
