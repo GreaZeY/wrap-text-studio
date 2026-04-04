@@ -4,6 +4,7 @@ import { gl, asciiCanvas, videoTexture, uniforms, ASCII_DENSITY_RAMP } from './r
 import { detectSilhouette } from './silhouette.js';
 import { renderStaticLayout } from './text-layout.js';
 import { resizeCanvases } from './renderer.js';
+import { hexToRgb } from './ui.js';
 
 const MARGIN = 24;
 const SILHOUETTE_PADDING = 6;
@@ -148,6 +149,8 @@ export async function startExport(videoElement) {
     const gridRows = Math.ceil(targetHeight / charH);
     const gridCols = Math.ceil(targetWidth / charW);
 
+    const rgb = hexToRgb(fontColor);
+
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, videoTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offlineVideo);
@@ -156,6 +159,7 @@ export async function startExport(videoElement) {
     gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
     gl.uniform2f(uniforms.silOffset, 0, 0);
     gl.uniform1f(uniforms.numChars, ASCII_DENSITY_RAMP.length);
+    gl.uniform3f(uniforms.asciiColor, rgb[0], rgb[1], rgb[2]);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     renderCtx.drawImage(asciiCanvas, 0, 0);

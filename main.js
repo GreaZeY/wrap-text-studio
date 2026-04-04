@@ -3,7 +3,7 @@ import { state } from './src/state.js';
 import { resizeCanvases, drawAsciiFrame, clearComposite } from './src/renderer.js';
 import { detectSilhouette, hasSilhouetteChanged } from './src/silhouette.js';
 import { placeTextAroundSilhouette, renderStaticLayout } from './src/text-layout.js';
-import { bindAllControls, applyTextStyles } from './src/ui.js';
+import { bindAllControls, applyTextStyles, hexToRgb } from './src/ui.js';
 
 const SILHOUETTE_REFRESH_INTERVAL = 3;
 
@@ -32,7 +32,10 @@ function renderFrame() {
   const gridCols = Math.ceil(scaledWidth / charW);
   const gridRows = Math.ceil(scaledHeight / charH);
 
-  drawAsciiFrame(videoElement, viewportWidth, viewportHeight, gridCols, gridRows, charW, charH, silhouetteOffsetX);
+  const colorHex = document.getElementById('textColor')?.value || "#ffffff";
+  const rgb = hexToRgb(colorHex);
+
+  drawAsciiFrame(videoElement, viewportWidth, viewportHeight, gridCols, gridRows, charW, charH, silhouetteOffsetX, rgb);
 
   state.frameCount++;
   if (state.frameCount % SILHOUETTE_REFRESH_INTERVAL === 0 || !state.previousLeftEdges || state.needsRedraw) {

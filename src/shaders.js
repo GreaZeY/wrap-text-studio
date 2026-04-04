@@ -17,6 +17,7 @@ uniform vec2 u_gridSize;
 uniform vec2 u_silOffset;
 uniform float u_numChars;
 uniform vec3 u_bg;
+uniform vec3 u_asciiColor;
 void main() {
   vec2 px = vec2(v_uv.x, 1.0 - v_uv.y) * u_resolution;
   vec2 localPx = px - u_silOffset;
@@ -45,8 +46,9 @@ void main() {
     gl_FragColor = vec4(u_bg, 1.0);
     return;
   }
-  float bright = min(1.0, lum * 1.8);
-  vec3 tint = vc.rgb * 0.3 + vec3(bright * 0.47, bright * 0.39, bright * 0.55);
-  vec3 color = mix(u_bg, tint, glyphA);
+  
+  float bright = min(1.0, lum * 1.5);
+  vec3 tint = vc.rgb * 0.4 + u_asciiColor * bright * 0.7;
+  vec3 color = mix(u_bg * 0.8, tint, glyphA);
   gl_FragColor = vec4(color, 1.0);
 }`;

@@ -1,7 +1,7 @@
 import { VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE } from './shaders.js';
 import { state } from './state.js';
 
-const ASCII_DENSITY_RAMP = " .:-=+*#%@";
+const ASCII_DENSITY_RAMP = "wesker";
 const GLYPH_FONT_SIZE = 12;
 const GLYPH_FONT = `${GLYPH_FONT_SIZE}px "Courier New", monospace`;
 const BACKGROUND_COLOR = [0.055, 0.055, 0.055];
@@ -53,17 +53,17 @@ const uniforms = {
 const videoTexture = gl.createTexture();
 const glyphTexture = gl.createTexture();
 
-function configureTexture(texture, unit) {
+function configureTexture(texture, unit, filter = gl.NEAREST) {
   gl.activeTexture(gl.TEXTURE0 + unit);
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
 }
 
-configureTexture(videoTexture, 0);
-configureTexture(glyphTexture, 1);
+configureTexture(videoTexture, 0, gl.LINEAR);
+configureTexture(glyphTexture, 1, gl.NEAREST);
 gl.uniform1i(uniforms.videoTex, 0);
 gl.uniform1i(uniforms.glyphsTex, 1);
 gl.uniform3f(uniforms.background, ...BACKGROUND_COLOR);
@@ -111,15 +111,18 @@ export function resizeCanvases() {
   state.previousLeftEdges = null;
 }
 
-export function drawAsciiFrame(videoElement, viewportWidth, viewportHeight, gridCols, gridRows, cellW, cellH, silhouetteOffsetX) {
+export function drawAsciiFrame(videoSource, viewportWidth, viewportHeight, gridCols, gridRows, cellW, cellH, silhouetteOffsetX, asciiRGB) {
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, videoTexture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, videoElement);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, videoSource);
   gl.uniform2f(uniforms.resolution, viewportWidth, viewportHeight);
   gl.uniform2f(uniforms.cellSize, cellW, cellH);
   gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
   gl.uniform2f(uniforms.silOffset, silhouetteOffsetX, 0);
   gl.uniform1f(uniforms.numChars, ASCII_DENSITY_RAMP.length);
+  if (asciiRGB) {
+    gl.uniform3f(uniforms.asciiColor, asciiRGB[0], asciiRGB[1], asciiRGB[2]);
+  }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
