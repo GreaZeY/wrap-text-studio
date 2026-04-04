@@ -112,44 +112,34 @@ body {
 }
 
 .sidebar-toggle {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.4);
-  width: 36px;
-  height: 36px;
+  background: transparent;
+  border: none;
+  color: white;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s var(--ease);
 }
 
 .sidebar-toggle:hover {
-  background: var(--re-red);
-  color: white;
-  border-color: var(--re-red);
+  background: transparent;
+  color: var(--re-red);
+  transform: scale(1.1);
 }
 
 .config-toggle {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 1000;
-  background: var(--bg-sidebar);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--re-gold);
-  width: 44px;
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   left: 24px;
   width: 48px;
   height: 48px;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--re-red);
+  background: transparent;
+  border: none;
   border-radius: 50%;
-  color: var(--re-red);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -159,14 +149,13 @@ body {
   visibility: hidden;
   pointer-events: none;
   transform: translateX(-20px);
-  transition: all 0.5s var(--ease), transform 0.3s var(--ease) !important;
 }
 
 .config-toggle:hover {
-  background: var(--re-red);
-  color: white;
-  transform: rotate(45deg);
-  box-shadow: 0 4px 20px rgba(139, 0, 0, 0.4);
+  background: transparent;
+  color: var(--re-red);
+  transform: rotate(45deg) scale(1.1);
+  box-shadow: none;
 }
 
 .sidebar-closed + .workspace .config-toggle {
@@ -175,6 +164,7 @@ body {
   visibility: visible;
   pointer-events: auto;
   transform: translateX(0);
+  transition: all 0.5s var(--ease), transform 0.3s var(--ease) !important;
 }
 
 .player-controls {
@@ -193,6 +183,7 @@ body {
 .user-inactive .player-controls,
 .user-inactive .config-toggle {
   opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none;
 }
 
@@ -350,13 +341,13 @@ body {
   transition: all 0.2s;
 }
 .dropdown-list li:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  background: transparent;
+  color: var(--re-red);
 }
 .dropdown-list li.upload-box:hover {
-  background: rgba(139, 0, 0, 0.15);
+  background: transparent;
   border-color: var(--re-red);
-  color: white;
+  color: var(--re-red);
 }
 
 .media-preview {
@@ -705,7 +696,7 @@ body {
 }
 
 .export-btn {
-  color: var(--re-amber);
+  color: white;
 }
 
 /* ── Recording Indicator ─────────────────────────────────── */
