@@ -1,7 +1,6 @@
 import { VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE } from './shaders.js';
 import { state } from './state.js';
 
-const ASCII_DENSITY_RAMP = "wesker";
 const GLYPH_FONT_SIZE = 12;
 const GLYPH_FONT = `${GLYPH_FONT_SIZE}px "Courier New", monospace`;
 const BACKGROUND_COLOR = [0.055, 0.055, 0.055];
@@ -73,7 +72,7 @@ export function buildGlyphAtlas() {
   measureCtx.font = GLYPH_FONT;
   const charWidth = Math.ceil(measureCtx.measureText("@").width);
   const charHeight = GLYPH_FONT_SIZE + 2;
-  const charCount = ASCII_DENSITY_RAMP.length;
+  const charCount = state.asciiRamp.length;
 
   const atlasCanvas = new OffscreenCanvas(charWidth * charCount, charHeight);
   const atlasCtx = atlasCanvas.getContext("2d");
@@ -81,7 +80,7 @@ export function buildGlyphAtlas() {
   atlasCtx.textBaseline = "top";
   atlasCtx.fillStyle = "#fff";
   for (let i = 0; i < charCount; i++) {
-    atlasCtx.fillText(ASCII_DENSITY_RAMP[i], i * charWidth, 1);
+    atlasCtx.fillText(state.asciiRamp[i], i * charWidth, 1);
   }
 
   gl.activeTexture(gl.TEXTURE1);
@@ -119,7 +118,7 @@ export function drawAsciiFrame(videoSource, viewportWidth, viewportHeight, gridC
   gl.uniform2f(uniforms.cellSize, cellW, cellH);
   gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
   gl.uniform2f(uniforms.silOffset, silhouetteOffsetX, 0);
-  gl.uniform1f(uniforms.numChars, ASCII_DENSITY_RAMP.length);
+  gl.uniform1f(uniforms.numChars, state.asciiRamp.length);
   if (asciiRGB) {
     gl.uniform3f(uniforms.asciiColor, asciiRGB[0], asciiRGB[1], asciiRGB[2]);
   }
@@ -130,4 +129,4 @@ export function clearComposite(width, height) {
   ctx2d.clearRect(0, 0, width, height);
 }
 
-export { gl, asciiCanvas, compositeCanvas, ctx2d, videoTexture, uniforms, ASCII_DENSITY_RAMP };
+export { gl, asciiCanvas, compositeCanvas, ctx2d, videoTexture, uniforms };

@@ -2,6 +2,7 @@ import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './state.js';
 import { renderStaticLayout } from './text-layout.js';
 import { openExportModal, cancelExport, startExport } from './export.js';
+import { buildGlyphAtlas } from './renderer.js';
 
 const PLAY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
 const PAUSE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
@@ -11,6 +12,7 @@ export function bindAllControls(videoElement, renderFrameCallback, resizeCallbac
   bindBoldItalicToggles();
   bindFileUpload(videoElement);
   bindAsciiScaleSlider();
+  bindAsciiRampControl();
   bindSliderFillTracking();
   bindCustomDropdowns();
   bindPlayerControls(videoElement, renderFrameCallback, resizeCallback);
@@ -130,6 +132,22 @@ function bindAsciiScaleSlider() {
     updateSliderFill(slider);
 
     state.needsRedraw = true;
+    if (!state.isRendering) {
+      const container = document.getElementById("videoContainer");
+      renderStaticLayout(container.clientWidth, container.clientHeight);
+    }
+  });
+}
+
+function bindAsciiRampControl() {
+  const input = document.getElementById('asciiRamp');
+  if (!input) return;
+
+  input.addEventListener('input', (e) => {
+    state.asciiRamp = e.target.value || " ";
+    state.cellDimensions = buildGlyphAtlas();
+    state.needsRedraw = true;
+
     if (!state.isRendering) {
       const container = document.getElementById("videoContainer");
       renderStaticLayout(container.clientWidth, container.clientHeight);

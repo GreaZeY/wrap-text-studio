@@ -19,4 +19,5 @@ export const state = {
   frameCount: 0,
   previousLeftEdges: null,
   previousRightEdges: null,
+  asciiRamp: "wesker",
 };
