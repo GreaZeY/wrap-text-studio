@@ -263,12 +263,13 @@ function bindCustomDropdowns() {
   });
 }
 
-function bindPlayerControls(videoElement, renderFrameCallback, resizeCallback) {
+function bindPlayerControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback) {
   const playPauseBtn = document.getElementById('btnPlayPause');
   const seekSlider = document.getElementById('seekSlider');
   const timeDisplay = document.getElementById('timeDisplay');
+  const fullscreenBtn = document.getElementById('btnFullscreen');
 
-    playPauseBtn.addEventListener('click', () => {
+  playPauseBtn.addEventListener('click', () => {
     if (!state.isRendering) {
       state.isRendering = true;
       videoElement.play();
@@ -309,6 +310,17 @@ function bindPlayerControls(videoElement, renderFrameCallback, resizeCallback) {
       });
     }
   });
+
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener('click', () => {
+      const container = document.getElementById('videoContainer');
+      if (!document.fullscreenElement) {
+        container.requestFullscreen?.() || container.webkitRequestFullscreen?.();
+      } else {
+        document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+      }
+    });
+  }
 }
 
 function bindExportControls(videoElement) {

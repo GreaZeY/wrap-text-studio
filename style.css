@@ -720,27 +720,44 @@ body {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    height: 100%;
-    box-shadow: 20px 0 60px rgba(0,0,0,0.9);
-  }
-
-  .sidebar-closed {
-    transform: translateX(-100%);
-    margin-left: 0; /* Don't squash workspace on mobile */
+  .app-layout {
+    flex-direction: column-reverse; /* Reverses DOM order so Workspace is on Top */
+    overflow-y: auto; /* Allow scrolling the whole page if necessary, or just let sidebar scroll */
+    height: 100vh;
   }
 
   .workspace {
     width: 100%;
+    height: 45vh; /* Fixed height for video player on top */
+    min-height: 45vh;
+    flex: none;
   }
 
-  .config-toggle {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    transform: translateX(0) !important;
+  .sidebar {
+    width: 100%;
+    height: 55vh; /* Taking the rest of the height */
+    min-width: 100%;
+    position: static;
+    transform: none;
+    margin-left: 0;
+    box-shadow: none;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar-closed {
+    transform: none;
+    margin-left: 0;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .config-toggle, .onboarding-tooltip {
+    display: none !important;
   }
 
   .export-modal {
@@ -754,7 +771,9 @@ body {
 }
 
 @media (max-width: 480px) {
-  :root { --sidebar-w: 100%; }
+  .app-layout {
+    flex-direction: column-reverse; /* Ensure consistency with tablet */
+  }
   
   .sidebar {
     padding: 16px;
