@@ -14,12 +14,24 @@
 /* ── Reset ────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+  display: none;
+}
+
 body {
-  min-height: 100vh;
   background: var(--bg-deep);
   color: var(--ink);
   font-family: 'Inter', sans-serif;
-  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -27,6 +39,7 @@ body {
   display: flex;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 }
 
 /* ── Sidebar ─────────────────────────────────────────────── */
@@ -41,26 +54,35 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   transition: width 0.6s var(--ease), min-width 0.6s var(--ease), padding 0.6s var(--ease), opacity 0.4s var(--ease);
+}
+
+/* ── Modern Universal Scrollbars ─────────────────────────── */
+* {
   scrollbar-width: thin;
-  scrollbar-color: rgba(139, 0, 0, 0) transparent;
+  scrollbar-color: rgba(139, 0, 0, 0.1) transparent;
 }
 
-.sidebar:hover {
-  scrollbar-color: var(--re-red) transparent;
-}
-
-.sidebar::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
-.sidebar::-webkit-scrollbar-thumb {
-  background: rgba(139, 0, 0, 0);
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 0, 0, 0.1);
   border-radius: 10px;
-  transition: background 0.3s;
+  transition: background 0.3s var(--ease);
 }
 
-.sidebar:hover::-webkit-scrollbar-thumb {
-  background: var(--re-red);
+*:hover::-webkit-scrollbar-thumb {
+  background: rgba(139, 0, 0, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--re-red) !important;
 }
 
 .sidebar-closed {
@@ -71,32 +93,34 @@ body {
   pointer-events: none;
 }
 
-.logo {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 2rem;
-  letter-spacing: 0.1em;
-  color: var(--re-gold);
-  margin-bottom: 12px;
-}
-
 .sidebar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px;
+}
+
+.logo {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 2.2rem;
+  line-height: .85; /* Tighten for baseline sync */
+  letter-spacing: 0.05em;
+  color: var(--re-gold);
+  margin: 0;
 }
 
 .sidebar-toggle {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s var(--ease);
 }
 
 .sidebar-toggle:hover {
@@ -116,18 +140,21 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 8px;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s var(--ease);
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   transform: translateX(-20px);
 }
 
 .sidebar-closed + .workspace .config-toggle {
+  display: flex;
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
   transform: translateX(0);
 }
@@ -290,6 +317,66 @@ body {
   background: rgba(255, 255, 255, 0.05);
   color: white;
 }
+.dropdown-list li.upload-box:hover {
+  background: rgba(139, 0, 0, 0.15);
+  border-color: var(--re-red);
+  color: white;
+}
+
+.media-preview {
+  margin-top: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  animation: fadeIn 0.3s var(--ease);
+}
+
+.preview-thumb-container {
+  width: 80px;
+  height: 45px;
+  background: black;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+#thumbCanvas {
+  display: block;
+}
+
+.media-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.media-filename {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.media-status {
+  font-size: 0.65rem;
+  color: var(--re-gold);
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .dropdown-list li.selected {
   background: rgba(139, 0, 0, 0.2);
   color: var(--re-red);

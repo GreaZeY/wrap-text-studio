@@ -110,8 +110,21 @@ function bindFileUpload(videoElement) {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Update UI
+    document.getElementById('uploadBtnText').textContent = 'Change Media';
+    document.getElementById('mediaFileName').textContent = file.name;
+    document.getElementById('mediaPreview').style.display = 'flex';
+
     const url = URL.createObjectURL(file);
     videoElement.src = url;
+    
+    // Generate Thumbnail
+    videoElement.addEventListener('loadeddata', () => {
+      const thumbCanvas = document.getElementById('thumbCanvas');
+      const ctx = thumbCanvas.getContext('2d');
+      ctx.drawImage(videoElement, 0, 0, thumbCanvas.width, thumbCanvas.height);
+    }, { once: true });
+
     videoElement.play();
     setTimeout(() => {
       videoElement.pause();

@@ -23,8 +23,18 @@
                 <p class="upload-hint">Use a video with a solid-color or removed background for best results. High contrast works best.</p>
                 <div class="upload-box" id="uploadZone">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                    <span>Import Media File</span>
+                    <span id="uploadBtnText">Import Media File</span>
                     <input type="file" id="fileInput" accept="video/*,image/gif" style="display:none">
+                </div>
+
+                <div id="mediaPreview" class="media-preview" style="display:none">
+                    <div class="preview-thumb-container">
+                        <canvas id="thumbCanvas" width="80" height="45"></canvas>
+                    </div>
+                    <div class="media-meta">
+                        <span class="media-filename" id="mediaFileName">filename.mp4</span>
+                        <span class="media-status">READY FOR PROCESSING</span>
+                    </div>
                 </div>
             </section>
             
