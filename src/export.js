@@ -70,6 +70,10 @@ export async function startExport(videoElement) {
   renderCanvas.width = targetWidth;
   renderCanvas.height = targetHeight;
   const renderCtx = renderCanvas.getContext("2d", { willReadFrequently: true });
+  
+  // High quality context settings
+  renderCtx.imageSmoothingEnabled = true;
+  renderCtx.imageSmoothingQuality = 'high';
 
   let stream;
   if (includeAudio) {
@@ -80,24 +84,44 @@ export async function startExport(videoElement) {
     source.connect(audioCtx.destination);
     offlineVideo.volume = 1;
 
-    const videoStream = renderCanvas.captureStream();
+    const videoStream = renderCanvas.captureStream(30); // Stabilize at 30 FPS
     const tracks = [...videoStream.getVideoTracks(), ...destination.stream.getAudioTracks()];
     stream = new MediaStream(tracks);
   } else {
-    stream = renderCanvas.captureStream();
+    stream = renderCanvas.captureStream(30); // Stabilize at 30 FPS
   }
 
-  mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+  // Ultra-High Quality Scaling: 1080p (50M), 720p (25M), 480p (10M)
+  const bitrate = targetHeight >= 1080 ? 50000000 : (targetHeight >= 720 ? 25000000 : 10000000);
+  
+  const options = { 
+    mimeType: 'video/webm;codecs=vp9',
+    videoBitsPerSecond: bitrate 
+  };
+  
+  // High-performance fallback
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    options.mimeType = 'video/webm;codecs=vp8';
+  }
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    options.mimeType = 'video/webm';
+  }
+
+  mediaRecorder = new MediaRecorder(stream, options);
 
   mediaRecorder.ondataavailable = (e) => {
     if (e.data.size > 0) recordedChunks.push(e.data);
   };
 
   mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: options.mimeType });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(new Blob(recordedChunks, { type: 'video/webm' }));
+    link.href = url;
     link.download = `wrap-studio-${targetHeight}p-${Date.now()}.webm`;
     link.click();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     isExporting = false;
     exportModal.close();

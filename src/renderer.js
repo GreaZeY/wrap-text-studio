@@ -9,7 +9,11 @@ const BACKGROUND_COLOR = [0.055, 0.055, 0.055];
 const asciiCanvas = document.getElementById('textmodeCanvas');
 const compositeCanvas = document.getElementById('canvasDisplay');
 
-const gl = asciiCanvas.getContext("webgl", { alpha: false, antialias: false, preserveDrawingBuffer: false });
+const gl = asciiCanvas.getContext("webgl", { 
+  alpha: false, 
+  antialias: false, 
+  preserveDrawingBuffer: true 
+});
 const ctx2d = compositeCanvas.getContext("2d", { willReadFrequently: true });
 
 function compileShader(source, type) {
