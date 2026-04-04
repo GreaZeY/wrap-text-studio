@@ -18,6 +18,7 @@ export function bindAllControls(videoElement, renderFrameCallback, resizeCallbac
   bindPlayerControls(videoElement, renderFrameCallback, resizeCallback);
   bindExportControls(videoElement);
   bindTextEditor(videoElement, refreshTextCallback);
+  bindSidebarToggle();
 }
 
 function bindTypographyControls(refreshTextCallback) {
@@ -279,6 +280,28 @@ function bindTextEditor() {
       state.needsRedraw = true;
     }
   });
+}
+
+function bindSidebarToggle() {
+  const btnClose = document.getElementById('btnSidebarClose');
+  const btnOpen = document.getElementById('btnSidebarOpen');
+  const sidebar = document.querySelector('.sidebar');
+
+  if (!btnClose || !btnOpen || !sidebar) return;
+
+  const toggle = (isOpen) => {
+    state.sidebarOpen = isOpen;
+    sidebar.classList.toggle('sidebar-closed', !isOpen);
+    
+    const onTransitionEnd = () => {
+      window.dispatchEvent(new Event('resize'));
+      sidebar.removeEventListener('transitionend', onTransitionEnd);
+    };
+    sidebar.addEventListener('transitionend', onTransitionEnd);
+  };
+
+  btnClose.addEventListener('click', () => toggle(false));
+  btnOpen.addEventListener('click', () => toggle(true));
 }
 
 function formatTime(seconds) {

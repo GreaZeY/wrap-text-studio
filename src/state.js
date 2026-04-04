@@ -20,4 +20,5 @@ export const state = {
   previousLeftEdges: null,
   previousRightEdges: null,
   asciiRamp: "wesker",
+  sidebarOpen: true,
 };

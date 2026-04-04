@@ -39,17 +39,36 @@ body {
   padding: 24px;
   gap: 32px;
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.6s var(--ease), min-width 0.6s var(--ease), padding 0.6s var(--ease), opacity 0.4s var(--ease);
   scrollbar-width: thin;
+  scrollbar-color: rgba(139, 0, 0, 0) transparent;
+}
+
+.sidebar:hover {
   scrollbar-color: var(--re-red) transparent;
 }
 
 .sidebar::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
+  background: rgba(139, 0, 0, 0);
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+
+.sidebar:hover::-webkit-scrollbar-thumb {
   background: var(--re-red);
-  border-radius: 4px;
+}
+
+.sidebar-closed {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .logo {
@@ -58,6 +77,66 @@ body {
   letter-spacing: 0.1em;
   color: var(--re-gold);
   margin-bottom: 12px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sidebar-toggle:hover {
+  background: var(--re-red);
+  color: white;
+  border-color: var(--re-red);
+}
+
+.config-toggle {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: var(--bg-sidebar);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--re-gold);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-20px);
+}
+
+.sidebar-closed + .workspace .config-toggle {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.config-toggle:hover {
+  background: var(--re-red);
+  color: white;
+  transform: rotate(45deg);
+  box-shadow: 0 4px 20px rgba(139, 0, 0, 0.4);
 }
 
 .panel h3 {

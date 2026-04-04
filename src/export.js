@@ -1,6 +1,6 @@
 import { prepareWithSegments, layoutNextLine as layout } from '@chenglou/pretext';
 import { state } from './state.js';
-import { gl, asciiCanvas, videoTexture, uniforms, ASCII_DENSITY_RAMP } from './renderer.js';
+import { gl, asciiCanvas, videoTexture, uniforms } from './renderer.js';
 import { detectSilhouette } from './silhouette.js';
 import { renderStaticLayout } from './text-layout.js';
 import { resizeCanvases } from './renderer.js';
@@ -158,7 +158,7 @@ export async function startExport(videoElement) {
     gl.uniform2f(uniforms.cellSize, charW, charH);
     gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
     gl.uniform2f(uniforms.silOffset, 0, 0);
-    gl.uniform1f(uniforms.numChars, ASCII_DENSITY_RAMP.length);
+    gl.uniform1f(uniforms.numChars, state.asciiRamp.length);
     gl.uniform3f(uniforms.asciiColor, rgb[0], rgb[1], rgb[2]);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
