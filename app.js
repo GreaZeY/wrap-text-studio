@@ -464,6 +464,35 @@ asciiScaleSlider.addEventListener('input', (e) => {
     });
 });
 
+// Custom Dropdown Architecture
+document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+    const header = dropdown.querySelector('.dropdown-header');
+    const headerText = header.querySelector('span');
+    const input = dropdown.querySelector('input[type="hidden"]');
+    
+    header.addEventListener('click', (e) => {
+        document.querySelectorAll('.custom-dropdown').forEach(d => { if (d !== dropdown) d.classList.remove('open') });
+        dropdown.classList.toggle('open');
+        e.stopPropagation();
+    });
+
+    dropdown.querySelectorAll('li').forEach(item => {
+        item.addEventListener('click', (e) => {
+            headerText.textContent = item.textContent;
+            input.value = item.dataset.value;
+            dropdown.classList.remove('open');
+            dropdown.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
+            item.classList.add('selected');
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            e.stopPropagation();
+        });
+    });
+});
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+});
+
 let playing = false;
 const iconPlay = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
 const iconPause = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;

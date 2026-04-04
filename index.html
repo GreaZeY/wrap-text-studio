@@ -27,7 +27,7 @@
                 <h3>🎛️ ASCII Engine</h3>
                 <div class="control">
                     <label>Matrix Size: <span id="asciiScaleVal">12</span>px</label>
-                    <input type="range" class="custom-slider" id="asciiScale" min="4" max="64" value="12">
+                    <input type="range" class="custom-slider" id="asciiScale" min="2" max="20" value="4">
                 </div>
             </section>
 
@@ -41,12 +41,16 @@
                 <div class="control-grid">
                     <div class="control">
                         <label>Font Family</label>
-                        <select id="fontFamily" class="custom-select">
-                            <option value="'Crimson Pro', serif">Serif (Crimson)</option>
-                            <option value="'Inter', sans-serif">Sans (Inter)</option>
-                            <option value="'Bebas Neue', cursive">Display (Bebas)</option>
-                            <option value="'Outfit', sans-serif">Modern (Outfit)</option>
-                        </select>
+                        <div class="custom-dropdown">
+                            <div class="dropdown-header"><span>Serif (Crimson)</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
+                            <ul class="dropdown-list">
+                                <li data-value="'Crimson Pro', serif" class="selected">Serif (Crimson)</li>
+                                <li data-value="'Inter', sans-serif">Sans (Inter)</li>
+                                <li data-value="'Bebas Neue', cursive">Display (Bebas)</li>
+                                <li data-value="'Outfit', sans-serif">Modern (Outfit)</li>
+                            </ul>
+                            <input type="hidden" id="fontFamily" value="'Crimson Pro', serif">
+                        </div>
                     </div>
                     <div class="control">
                         <label>Color</label>
@@ -67,11 +71,15 @@
                 <div class="style-toggles">
                     <button class="toggle" id="toggleBold"><b>B</b></button>
                     <button class="toggle" id="toggleItalic"><i>I</i></button>
-                    <select id="fontWeight" class="custom-select">
-                        <option value="400">400 (Normal)</option>
-                        <option value="600">600 (Semi)</option>
-                        <option value="700" selected>700 (Bold)</option>
-                    </select>
+                    <div class="custom-dropdown">
+                        <div class="dropdown-header"><span>700 (Bold)</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
+                        <ul class="dropdown-list">
+                            <li data-value="400">400 (Normal)</li>
+                            <li data-value="600">600 (Semi)</li>
+                            <li data-value="700" class="selected">700 (Bold)</li>
+                        </ul>
+                        <input type="hidden" id="fontWeight" value="700">
+                    </div>
                 </div>
             </section>
         </aside>
@@ -135,11 +143,15 @@
                     <div class="modal-body">
                         <div class="control-group">
                             <label>OUTPUT RESOLUTION</label>
-                            <select id="exportRes">
-                                <option value="1080">1080p (FHD)</option>
-                                <option value="720" selected>720p (HD)</option>
-                                <option value="480">480p (SD)</option>
-                            </select>
+                            <div class="custom-dropdown">
+                                <div class="dropdown-header"><span>720p (HD)</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
+                                <ul class="dropdown-list">
+                                    <li data-value="1080">1080p (FHD)</li>
+                                    <li data-value="720" class="selected">720p (HD)</li>
+                                    <li data-value="480">480p (SD)</li>
+                                </ul>
+                                <input type="hidden" id="exportRes" value="720">
+                            </div>
                         </div>
                         
                         <div class="control-group checkbox-group">
