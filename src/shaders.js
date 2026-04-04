@@ -1,4 +1,6 @@
-export const VERTEX_SHADER_SOURCE = `
+const glsl = (s, ...v) => s.map((sh, i) => sh + (v[i] || '')).join('');
+
+export const VERTEX_SHADER_SOURCE = glsl`
 attribute vec2 a_pos;
 varying vec2 v_uv;
 void main() {
@@ -6,7 +8,7 @@ void main() {
   gl_Position = vec4(a_pos, 0.0, 1.0);
 }`;
 
-export const FRAGMENT_SHADER_SOURCE = `
+export const FRAGMENT_SHADER_SOURCE = glsl`
 precision mediump float;
 varying vec2 v_uv;
 uniform sampler2D u_video;
@@ -32,13 +34,6 @@ void main() {
 
   vec2 videoUV = (cellIdx + 0.5) / u_gridSize;
   vec4 vc = texture2D(u_video, videoUV);
-
-  vec4 bgKey = texture2D(u_video, vec2(0.01, 0.01));
-  vec3 diff = abs(vc.rgb - bgKey.rgb);
-  if (diff.r < 0.08 && diff.g < 0.08 && diff.b < 0.08) {
-    gl_FragColor = vec4(u_bg, 1.0);
-    return;
-  }
 
   float lum = dot(vc.rgb, vec3(0.2126, 0.7152, 0.0722));
   
