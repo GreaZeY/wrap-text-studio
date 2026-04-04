@@ -1,7 +1,7 @@
 import { VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE } from './shaders.js';
 import { state } from './state.js';
 
-const GLYPH_FONT_SIZE = 12;
+const GLYPH_FONT_SIZE = state.asciiFontSize
 const GLYPH_FONT = `${GLYPH_FONT_SIZE}px "Courier New", monospace`;
 const BACKGROUND_COLOR = [0.055, 0.055, 0.055];
 

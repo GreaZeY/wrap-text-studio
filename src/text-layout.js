@@ -80,15 +80,3 @@ function computeTextRegions(narrowestLeft, widestRight, silhouetteOffsetX, charW
   return regions;
 }
 
-export function renderStaticLayout(viewportWidth, viewportHeight) {
-  let adjustedHeight = viewportHeight;
-  if (viewportWidth < viewportHeight) adjustedHeight = Math.max(viewportHeight, 900);
-
-  const emptySilhouette = {
-    leftEdges: new Int16Array(0),
-    rightEdges: new Int16Array(0),
-    rows: 0, cols: 0, charW: 1, charH: 1,
-  };
-
-  placeTextAroundSilhouette(emptySilhouette, 0, viewportWidth, adjustedHeight);
-}

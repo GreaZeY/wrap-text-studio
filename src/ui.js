@@ -1,6 +1,5 @@
 import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './state.js';
-import { renderStaticLayout } from './text-layout.js';
 import { openExportModal, cancelExport, startExport } from './export.js';
 import { buildGlyphAtlas } from './renderer.js';
 
@@ -28,15 +27,15 @@ function initInactivityTimer() {
 }
 
 export function bindAllControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback) {
-  bindArtStyleControl();
+  bindArtStyleControl(refreshTextCallback);
   bindTypographyControls(refreshTextCallback);
   bindBoldItalicToggles();
   bindFileUpload(videoElement);
-  bindAsciiScaleSlider();
-  bindAsciiRampControl();
+  bindAsciiScaleSlider(refreshTextCallback);
+  bindAsciiRampControl(refreshTextCallback);
   bindSliderFillTracking();
   bindCustomDropdowns();
-  bindPlayerControls(videoElement, renderFrameCallback, resizeCallback);
+  bindPlayerControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback);
   bindExportControls(videoElement);
   bindTextEditor(videoElement, refreshTextCallback);
   bindSidebarToggle();
@@ -50,7 +49,7 @@ function bindTypographyControls(refreshTextCallback) {
   });
 }
 
-function applyTextStyles() {
+function applyTextStyles(refreshTextCallback) {
   const color = document.getElementById('textColor').value;
   const size = document.getElementById('fontSize').value;
   const family = document.getElementById('fontFamily').value;
@@ -82,11 +81,7 @@ function applyTextStyles() {
   }
 
   state.needsRedraw = true;
-
-  if (!state.isRendering) {
-    const container = document.getElementById("videoContainer");
-    renderStaticLayout(container.clientWidth, container.clientHeight);
-  }
+  if (refreshTextCallback) refreshTextCallback();
 }
 
 function bindBoldItalicToggles() {
@@ -139,6 +134,7 @@ function bindFileUpload(videoElement) {
 
     const url = URL.createObjectURL(file);
     videoElement.src = url;
+    state.originalFilename = file.name;
     
     // Generate Thumbnail
     videoElement.addEventListener('loadeddata', () => {
@@ -156,7 +152,7 @@ function bindFileUpload(videoElement) {
   });
 }
 
-function bindAsciiScaleSlider() {
+function bindAsciiScaleSlider(refreshTextCallback) {
   const slider = document.getElementById('asciiScale');
   const display = document.getElementById('asciiScaleVal');
 
@@ -168,14 +164,11 @@ function bindAsciiScaleSlider() {
     updateSliderFill(slider);
 
     state.needsRedraw = true;
-    if (!state.isRendering) {
-      const container = document.getElementById("videoContainer");
-      renderStaticLayout(container.clientWidth, container.clientHeight);
-    }
+    if (refreshTextCallback) refreshTextCallback();
   });
 }
 
-function bindAsciiRampControl() {
+function bindAsciiRampControl(refreshTextCallback) {
   const input = document.getElementById('asciiRamp');
   if (!input) return;
 
@@ -184,21 +177,20 @@ function bindAsciiRampControl() {
     state.cellDimensions = buildGlyphAtlas();
     state.needsRedraw = true;
 
-    if (!state.isRendering) {
-      const container = document.getElementById("videoContainer");
-      renderStaticLayout(container.clientWidth, container.clientHeight);
-    }
+    if (refreshTextCallback) refreshTextCallback();
   });
 }
 
 function bindSliderFillTracking() {
-  ['fontSize', 'lineHeight'].forEach(id => {
-    const el = document.getElementById(id);
+  document.querySelectorAll('input[type="range"]').forEach(el => {
+    // Initial fill
+    updateSliderFill(el);
+    // On-the-fly fill
     el.addEventListener('input', () => updateSliderFill(el));
   });
 }
 
-function bindArtStyleControl() {
+function bindArtStyleControl(refreshTextCallback) {
   const artStyleInput = document.getElementById('artStyle');
   const asciiSection = document.getElementById('asciiSettingsSection');
   
@@ -207,27 +199,14 @@ function bindArtStyleControl() {
   const updateVisibility = (val) => {
     state.artStyle = val;
     
-    // Clear both canvases when switching modes to prevent ghosting
-    const asciiCanvas = document.getElementById('textmodeCanvas');
-    const displayCanvas = document.getElementById('canvasDisplay');
-    if (asciiCanvas) {
-      const gl = asciiCanvas.getContext('webgl');
-      if (gl) {
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-      }
-    }
-    if (displayCanvas) {
-      const ctx = displayCanvas.getContext('2d');
-      ctx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
-    }
-
     if (state.artStyle === 'ascii') {
       asciiSection.style.display = 'block';
     } else {
       asciiSection.style.display = 'none';
     }
+
     state.needsRedraw = true;
+    if (refreshTextCallback) refreshTextCallback();
   };
 
   artStyleInput.addEventListener('input', (e) => updateVisibility(e.target.value));
@@ -326,7 +305,7 @@ function bindPlayerControls(videoElement, renderFrameCallback, resizeCallback) {
     if (!state.isPlaying) {
       videoElement.requestVideoFrameCallback(() => {
         state.needsRedraw = true;
-        renderFrameCallback();
+        if (refreshTextCallback) refreshTextCallback();
       });
     }
   });
@@ -346,7 +325,7 @@ function bindExportControls(videoElement) {
   startBtn.addEventListener('click', () => startExport(videoElement));
 }
 
-function bindTextEditor() {
+function bindTextEditor(videoElement, refreshTextCallback) {
   const editor = document.getElementById('textEditor');
 
   editor.addEventListener('input', (e) => {
@@ -355,12 +334,7 @@ function bindTextEditor() {
       state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
     }
 
-    const container = document.getElementById("videoContainer");
-    if (!state.isRendering) {
-      renderStaticLayout(container.clientWidth, container.clientHeight);
-    } else {
-      state.needsRedraw = true;
-    }
+    if (refreshTextCallback) refreshTextCallback();
   });
 }
 

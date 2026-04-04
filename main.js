@@ -2,7 +2,7 @@ import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './src/state.js';
 import { resizeCanvases, renderStyleFrame, clearComposite } from './src/renderer.js';
 import { detectSilhouette, hasSilhouetteChanged } from './src/silhouette.js';
-import { placeTextAroundSilhouette, renderStaticLayout } from './src/text-layout.js';
+import { placeTextAroundSilhouette } from './src/text-layout.js';
 import { bindAllControls, applyTextStyles, hexToRgb } from './src/ui.js';
 
 const SILHOUETTE_REFRESH_INTERVAL = 3;
@@ -14,15 +14,13 @@ videoElement.muted = false;
 videoElement.playsInline = true;
 videoElement.preload = "auto";
 
-function renderFrame() {
-  if (!state.isRendering) return;
-
+function performFullRender() {
   const container = document.getElementById("videoContainer");
   let viewportWidth = container?.clientWidth || window.innerWidth;
   let viewportHeight = container?.clientHeight || window.innerHeight;
   if (viewportWidth < viewportHeight) viewportHeight = Math.max(viewportHeight, 900);
 
-  if (!videoElement.videoWidth) return;
+  if (!videoElement.videoWidth || videoElement.readyState < 2) return;
 
   const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
   const scaledHeight = viewportHeight;
@@ -53,16 +51,27 @@ function renderFrame() {
 
   // 3. Handle silhouette and text updates
   state.frameCount++;
-  if (state.frameCount % SILHOUETTE_REFRESH_INTERVAL === 0 || !state.previousLeftEdges || state.needsRedraw) {
-    const silhouette = detectSilhouette(scaledWidth, scaledHeight, charW, charH, videoElement);
+  const silhouette = detectSilhouette(scaledWidth, scaledHeight, charW, charH, videoElement);
 
-    if (hasSilhouetteChanged(silhouette.leftEdges, silhouette.rightEdges, state.previousLeftEdges, state.previousRightEdges) || state.needsRedraw) {
-      placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewportWidth, viewportHeight);
-      state.previousLeftEdges = silhouette.leftEdges.slice();
-      state.previousRightEdges = silhouette.rightEdges.slice();
-      state.needsRedraw = false;
-    }
+  if (hasSilhouetteChanged(silhouette.leftEdges, silhouette.rightEdges, state.previousLeftEdges, state.previousRightEdges) || state.needsRedraw) {
+    placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewportWidth, viewportHeight);
+    state.previousLeftEdges = silhouette.leftEdges.slice();
+    state.previousRightEdges = silhouette.rightEdges.slice();
+    state.needsRedraw = false;
   }
+}
+
+function renderFrame() {
+  if (!state.isRendering) return;
+  performFullRender();
+}
+
+/**
+ * Force a single frame redraw. Used when settings 
+ * change while the video is paused.
+ */
+export function forceRedraw() {
+  performFullRender();
 }
 
 function onVideoFrame() {
@@ -74,12 +83,11 @@ function onVideoFrame() {
 window.addEventListener("resize", () => {
   resizeCanvases();
   if (state.parsedLayout && !state.isRendering) {
-    const container = document.getElementById("videoContainer");
-    renderStaticLayout(container.clientWidth, container.clientHeight);
+    forceRedraw();
   }
 });
 
-bindAllControls(videoElement, onVideoFrame, resizeCanvases, renderFrame);
+bindAllControls(videoElement, onVideoFrame, resizeCanvases, forceRedraw);
 
 function initLayout() {
   window.dispatchEvent(new Event('resize'));
@@ -87,8 +95,8 @@ function initLayout() {
   if (container && container.clientWidth > 0) {
     resizeCanvases();
     state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
-    renderStaticLayout(container.clientWidth, container.clientHeight);
-    applyTextStyles(() => {});
+    forceRedraw();
+    applyTextStyles(forceRedraw);
   }
 }
 

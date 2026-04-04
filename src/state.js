@@ -3,11 +3,12 @@ import { DEFAULT_TEXT, DEFAULT_VIDEO_SRC } from "./defaults.js";
 export const state = {
   storyText: DEFAULT_TEXT,
   initialVideoSrc: DEFAULT_VIDEO_SRC,
+  originalFilename: DEFAULT_VIDEO_SRC,
 
-  currentFontSpec: '17px "Poppins", sans-serif',
+  currentFontSpec: '16px "Poppins", sans-serif',
   currentLineHeight: 24,
 
-  asciiFontSize: 4,
+  asciiFontSize: 8,
   cellDimensions: { charW: 2, charH: 4 },
 
   parsedLayout: null,

@@ -3,7 +3,6 @@ import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 import { state } from './state.js';
 import { gl, asciiCanvas, videoTexture, uniforms, renderStyleFrame } from './renderer.js';
 import { detectSilhouette } from './silhouette.js';
-import { renderStaticLayout } from './text-layout.js';
 import { resizeCanvases } from './renderer.js';
 import { hexToRgb } from './ui.js';
 
@@ -314,18 +313,20 @@ export async function startExport(videoElement) {
       muxer.finalize();
       
       const { buffer } = muxer.target;
+      const originalBase = state.originalFilename.substring(0, state.originalFilename.lastIndexOf('.')) || state.originalFilename;
+      const exportFilename = `${originalBase}_${state.artStyle}_${targetHeight}p.webm`;
+
       const blob = new Blob([buffer], { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `storybook-export-${targetHeight}p-${Date.now()}.webm`;
+      link.download = exportFilename;
       link.click();
 
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       stopExportExecution();
       exportModal.close();
-      resizeCanvases();
-      renderStaticLayout(savedWidth, savedHeight);
+      window.dispatchEvent(new Event('resize'));
     }
   }
 
