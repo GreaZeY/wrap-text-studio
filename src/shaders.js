@@ -18,37 +18,47 @@ uniform vec2 u_silOffset;
 uniform float u_numChars;
 uniform vec3 u_bg;
 uniform vec3 u_asciiColor;
+
 void main() {
   vec2 px = vec2(v_uv.x, 1.0 - v_uv.y) * u_resolution;
   vec2 localPx = px - u_silOffset;
   vec2 cellIdx = floor(localPx / u_cellSize);
   vec2 cellFrac = fract(localPx / u_cellSize);
+
   if (cellIdx.x < 0.0 || cellIdx.y < 0.0 || cellIdx.x >= u_gridSize.x || cellIdx.y >= u_gridSize.y) {
     gl_FragColor = vec4(u_bg, 1.0);
     return;
   }
+
   vec2 videoUV = (cellIdx + 0.5) / u_gridSize;
   vec4 vc = texture2D(u_video, videoUV);
 
   vec4 bgKey = texture2D(u_video, vec2(0.01, 0.01));
   vec3 diff = abs(vc.rgb - bgKey.rgb);
-  if (diff.r < 0.06 && diff.g < 0.06 && diff.b < 0.06) {
+  if (diff.r < 0.08 && diff.g < 0.08 && diff.b < 0.08) {
     gl_FragColor = vec4(u_bg, 1.0);
     return;
   }
 
-  float lum = dot(vc.rgb, vec3(0.299, 0.587, 0.114));
-  lum = min(1.0, lum * 1.8);
-  float charF = floor(lum * (u_numChars - 1.0));
+  float lum = dot(vc.rgb, vec3(0.2126, 0.7152, 0.0722));
+  
+  float brightFactor = 2.4; 
+  lum = clamp(lum * brightFactor, 0.0, 1.0);
+  
+  float charF = floor(pow(lum, 0.9) * (u_numChars - 1.0));
   float atlasU = (charF + cellFrac.x) / u_numChars;
   float glyphA = texture2D(u_glyphs, vec2(atlasU, cellFrac.y)).a;
-  if (charF < 0.5 && glyphA < 0.1) {
+
+  if (lum < 0.05) {
     gl_FragColor = vec4(u_bg, 1.0);
     return;
   }
+
+  vec3 contrastColor = pow(vc.rgb, vec3(1.2)); 
+  vec3 tint = mix(u_asciiColor, contrastColor, 0.35) * (lum * 1.5 + 0.1);
+  vec3 finalColor = mix(u_bg, tint, glyphA * 1.1);
+  finalColor = mix(vec3(dot(finalColor, vec3(0.333))), finalColor, 1.3); 
+  finalColor *= 1.2; 
   
-  float bright = min(1.0, lum * 1.5);
-  vec3 tint = vc.rgb * 0.4 + u_asciiColor * bright * 0.7;
-  vec3 color = mix(u_bg * 0.8, tint, glyphA);
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(finalColor, 1.0);
 }`;
