@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-Wrap Studio | Dynamic AI Storybook</title>
+    <!-- Native Local Application Payload -->
+    <script src="text-engine.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="re4-theme">
+
+    <div class="app-layout">
+        <!-- Sidebar: Instructions & Text Editor -->
+        <aside class="sidebar">
+            <h1 class="logo">Wrap Studio</h1>
+            
+            <section class="panel">
+                <h3>📖 Custom Story</h3>
+                <textarea id="textEditor" placeholder="Paste your story here..."></textarea>
+                <p class="hint">Defaulting to resident evil script.</p>
+            </section>
+
+            <section class="panel styling">
+                <h3>🎨 Text Styling</h3>
+                <div class="control-grid">
+                    <div class="control">
+                        <label>Font</label>
+                        <select id="fontFamily">
+                            <option value="'Crimson Pro', serif">Serif (Crimson)</option>
+                            <option value="'Inter', sans-serif">Sans (Inter)</option>
+                            <option value="'Bebas Neue', cursive">Display (Bebas)</option>
+                            <option value="'Outfit', sans-serif">Modern (Outfit)</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label>Color</label>
+                        <input type="color" id="textColor" value="#e0d1b1">
+                    </div>
+                </div>
+
+                <div class="control">
+                    <label>Size: <span id="valSize">17</span>px</label>
+                    <input type="range" id="fontSize" min="10" max="40" value="17">
+                </div>
+
+                <div class="control">
+                    <label>Spacing: <span id="valLineHeight">24</span>px</label>
+                    <input type="range" id="lineHeight" min="14" max="60" value="24">
+                </div>
+
+                <div class="style-toggles">
+                    <button class="toggle" id="toggleBold"><b>B</b></button>
+                    <button class="toggle" id="toggleItalic"><i>I</i></button>
+                    <select id="fontWeight">
+                        <option value="400">400 (Normal)</option>
+                        <option value="600">600 (Semi)</option>
+                        <option value="700" selected>700 (Bold)</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="panel tuning">
+                <h3>🎚️ Wrap Tuning</h3>
+                <div class="control">
+                    <label>AI Confidence: <span id="valConfidence">120</span></label>
+                    <input type="range" id="wrapConfidence" min="10" max="250" value="120">
+                </div>
+                <div class="control">
+                    <label>Edge Buffer: <span id="valBuffer">10</span>px</label>
+                    <input type="range" id="wrapBuffer" min="0" max="50" value="10">
+                </div>
+                <div class="control-grid">
+                    <div class="control">
+                        <label>AI Contrast</label>
+                        <input type="range" id="aiContrast" min="1" max="3" step="0.1" value="1.5">
+                    </div>
+                    <div class="control">
+                        <label>AI Bright</label>
+                        <input type="range" id="aiBrightness" min="0.5" max="2" step="0.1" value="1.2">
+                    </div>
+                </div>
+                <p class="hint">Adjusting AI filters (Super-Vision) won't affect visible video.</p>
+            </section>
+
+            <section class="panel instructions">
+                <h3>✨ Perfect Wrap Guide</h3>
+                <ul>
+                    <li><strong>Isolation:</strong> AI works best with distinct human figures.</li>
+                    <li><strong>Contrast:</strong> Characters should be clearly visible against the background.</li>
+                    <li><strong>Framing:</strong> Centered subjects allow text to flow on both sides.</li>
+                    <li><strong>Clip Length:</strong> 10-30 seconds is ideal for export.</li>
+                </ul>
+            </section>
+
+            <div class="sidebar-footer">
+                <button class="re-btn re-btn--primary" id="btnUpload">📁 UPLOAD VIDEO/GIF</button>
+                <input type="file" id="fileInput" accept="video/*,image/gif" style="display:none">
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <div class="cinematic-overlay">
+                <h1 class="re4-title" id="displayTitle">Resident Evil 4</h1>
+                <div class="re4-divider"></div>
+                <p class="re4-subtitle" id="displaySubtitle">Leon Meets Ada</p>
+            </div>
+
+            <div class="video-container" id="videoContainer">
+                <div id="recordingIndicator" class="recording-indicator" style="display:none; z-index:100;"></div>
+                <!-- Media Layer (Audio/Video Source) -->
+                <video id="y" crossOrigin="anonymous" loop playsInline preload="auto" src="wesker.mov" class="media-layer"></video>
+                
+                <!-- Export/Processing Canvas (Handles Tint) -->
+                <canvas id="canvasDisplay" class="synced-canvas"></canvas>
+                
+                <!-- WebGL Base Layer -->
+                <canvas id="textmodeCanvas" class="synced-canvas" style="mix-blend-mode: screen;"></canvas>
+
+                <!-- Filter Screen -->
+                <div class="tint-layer"></div>
+
+                <!-- True Pretext: Active DOM Text Layer -->
+                <div id="textOverlay" class="text-overlay"></div>
+                
+                <!-- YouTube Style Player Controls -->
+                <div class="player-controls">
+                    <div class="seek-container">
+                        <input type="range" id="seekSlider" min="0" max="100" value="0" step="0.1">
+                    </div>
+                    
+                    <div class="controls-row">
+                        <div class="controls-left">
+                            <button class="icon-btn" id="btnPlayPause" title="Play/Pause target">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
+                            <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+                        </div>
+                        
+                        <div class="controls-right">
+                            <button class="icon-btn" id="btnUpload" title="Upload Video Source">
+                                <input type="file" id="fileInput" accept="video/*" style="display:none">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2v2h14v-2H5z"/></svg>
+                            </button>
+                            <button class="icon-btn export-btn" id="btnExport" title="Export Session (WebM)">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="statusLabel" class="loader-container">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Export Settings Modal -->
+            <dialog id="exportModal" class="export-modal">
+                <div class="modal-content">
+                    <h2>EXPORT SESSION</h2>
+                    
+                    <div class="modal-body">
+                        <div class="control-group">
+                            <label>OUTPUT RESOLUTION</label>
+                            <select id="exportRes">
+                                <option value="1080">1080p (FHD)</option>
+                                <option value="720" selected>720p (HD)</option>
+                                <option value="480">480p (SD)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="exportAudio" checked>
+                                INCLUDE NATIVE AUDIO
+                            </label>
+                        </div>
+
+                        <!-- Progress Bar (hidden by default) -->
+                        <div id="exportProgressUi" style="display:none; margin-top: 24px;">
+                            <label>RENDERING Engine...</label>
+                            <div class="progress-track">
+                                <div id="exportProgressBar" class="progress-fill"></div>
+                            </div>
+                            <div id="exportStatusText" class="status-subtext">Initializing...</div>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions" id="exportActions">
+                        <button class="re-btn" id="btnCancelExport">CANCEL</button>
+                        <button class="re-btn re-btn--primary" id="btnStartExport">BEGIN EXPORT</button>
+                    </div>
+                </div>
+            </dialog>
+        </main>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
