@@ -1,3 +1,4 @@
+import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './src/state.js';
 import { resizeCanvases, drawAsciiFrame, clearComposite } from './src/renderer.js';
 import { detectSilhouette, hasSilhouetteChanged } from './src/silhouette.js';
@@ -63,8 +64,8 @@ window.addEventListener("resize", () => {
 
 videoElement.addEventListener("loadeddata", () => {
   resizeCanvases();
-  if (window.g0 && state.storyText) {
-    state.parsedLayout = window.g0(state.storyText, state.currentFontSpec);
+  if (state.storyText) {
+    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
   }
   const container = document.getElementById("videoContainer");
   renderStaticLayout(container.clientWidth, container.clientHeight);
@@ -72,18 +73,16 @@ videoElement.addEventListener("loadeddata", () => {
 
 bindAllControls(videoElement, onVideoFrame, resizeCanvases, renderFrame);
 
-videoElement.src = "wesker.mov";
+videoElement.src = state.initialVideoSrc;
 
 setTimeout(() => {
   applyTextStyles(() => {});
 
-  if (window.g0) {
-    const editor = document.getElementById('textEditor');
-    editor.value = state.storyText;
-    state.parsedLayout = window.g0(state.storyText, state.currentFontSpec);
-    const loader = document.getElementById('statusLabel');
-    if (loader) loader.style.display = 'none';
-  } else {
-    console.error("Text engine dependency failed to load.");
-  }
+  const editor = document.getElementById('textEditor');
+  if (editor) editor.value = state.storyText;
+  
+  state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
+  
+  const loader = document.getElementById('statusLabel');
+  if (loader) loader.style.display = 'none';
 }, 500);

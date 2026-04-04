@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text-Wrap Studio | Dynamic AI Storybook</title>
-    <!-- Native Local Application Payload -->
-    <script src="text-engine.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="re4-theme">
@@ -16,7 +14,7 @@
             <h1 class="logo">Wrap Studio</h1>
             
             <section class="panel upload-panel">
-                <img src="video-intruction.png" alt="How it works" class="instruction-preview">
+                <img src="assets/video-intruction.webp" alt="How it works" class="instruction-preview">
                 <p class="upload-hint">Use a video with a solid-color or removed background for best results. High contrast works best.</p>
                 <div class="upload-box" id="uploadZone">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -87,94 +85,90 @@
         </aside>
 
         <!-- Main Workspace -->
-        <main class="workspace">
-            <div class="video-container" id="videoContainer">
-                <div id="recordingIndicator" class="recording-indicator" style="display:none; z-index:100;"></div>
-                <!-- Media Layer (Audio/Video Source) -->
-                <video id="y" crossOrigin="anonymous" loop playsInline preload="auto" src="wesker.mov" class="media-layer"></video>
+        <main class="workspace" id="videoContainer">
+            <div id="recordingIndicator" class="recording-indicator" style="display:none; z-index:100;"></div>
+            
+            <!-- Media Layer -->
+            <video id="y" crossOrigin="anonymous" loop playsInline preload="auto" class="media-layer"></video>
+            
+            <!-- Canvases -->
+            <canvas id="canvasDisplay" class="synced-canvas"></canvas>
+            <canvas id="textmodeCanvas" class="synced-canvas" style="mix-blend-mode: screen;"></canvas>
+            
+            <!-- Text Overlay -->
+            <div id="textOverlay" class="text-overlay"></div>
+            
+            <!-- Player Controls -->
+            <div class="player-controls">
+                <div class="seek-container">
+                    <input type="range" id="seekSlider" min="0" max="100" value="0" step="0.1">
+                </div>
                 
-                <!-- Export/Processing Canvas (Handles Tint) -->
-                <canvas id="canvasDisplay" class="synced-canvas"></canvas>
-                
-                <!-- WebGL Base Layer -->
-                <canvas id="textmodeCanvas" class="synced-canvas" style="mix-blend-mode: screen;"></canvas>
-
-                <!-- Filter Screen -->
-                <div class="tint-layer"></div>
-
-                <!-- True Pretext: Active DOM Text Layer -->
-                <div id="textOverlay" class="text-overlay"></div>
-                
-                <!-- YouTube Style Player Controls -->
-                <div class="player-controls">
-                    <div class="seek-container">
-                        <input type="range" id="seekSlider" min="0" max="100" value="0" step="0.1">
+                <div class="controls-row">
+                    <div class="controls-left">
+                        <button class="icon-btn" id="btnPlayPause" title="Play/Pause target">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
                     </div>
                     
-                    <div class="controls-row">
-                        <div class="controls-left">
-                            <button class="icon-btn" id="btnPlayPause" title="Play/Pause target">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
-                            <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-                        </div>
-                        
-                        <div class="controls-right">
-                            <button class="icon-btn export-btn" id="btnExport" title="Export Session (WebM)">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                            </button>
-                        </div>
+                    <div class="controls-right">
+                        <button class="icon-btn export-btn" id="btnExport" title="Export Session (WebM)">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <!-- Loader -->
             <div id="statusLabel" class="loader-container">
                 <div class="spinner"></div>
             </div>
-
-            <!-- Export Settings Modal -->
-            <dialog id="exportModal" class="export-modal">
-                <div class="modal-content">
-                    <h2>EXPORT SESSION</h2>
-                    
-                    <div class="modal-body">
-                        <div class="control-group">
-                            <label>OUTPUT RESOLUTION</label>
-                            <div class="custom-dropdown">
-                                <div class="dropdown-header"><span>720p (HD)</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
-                                <ul class="dropdown-list">
-                                    <li data-value="1080">1080p (FHD)</li>
-                                    <li data-value="720" class="selected">720p (HD)</li>
-                                    <li data-value="480">480p (SD)</li>
-                                </ul>
-                                <input type="hidden" id="exportRes" value="720">
-                            </div>
-                        </div>
-                        
-                        <div class="control-group checkbox-group">
-                            <label>
-                                <input type="checkbox" id="exportAudio" checked>
-                                Include Audio
-                            </label>
-                        </div>
-
-                        <!-- Progress Bar (hidden by default) -->
-                        <div id="exportProgressUi" style="display:none; margin-top: 24px;">
-                            <label>RENDERING Engine...</label>
-                            <div class="progress-track">
-                                <div id="exportProgressBar" class="progress-fill"></div>
-                            </div>
-                            <div id="exportStatusText" class="status-subtext">Initializing...</div>
-                        </div>
-                    </div>
-
-                    <div class="modal-actions" id="exportActions">
-                        <button class="re-btn" id="btnCancelExport">CANCEL</button>
-                        <button class="re-btn re-btn--primary" id="btnStartExport">BEGIN EXPORT</button>
-                    </div>
-                </div>
-            </dialog>
         </main>
     </div>
+
+    <!-- Export Settings Modal -->
+    <dialog id="exportModal" class="export-modal">
+        <div class="modal-content">
+            <h2>EXPORT SESSION</h2>
+            
+            <div class="modal-body">
+                <div class="control-group">
+                    <label>OUTPUT RESOLUTION</label>
+                    <div class="custom-dropdown">
+                        <div class="dropdown-header"><span>720p (HD)</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
+                        <ul class="dropdown-list">
+                            <li data-value="1080">1080p (FHD)</li>
+                            <li data-value="720" class="selected">720p (HD)</li>
+                            <li data-value="480">480p (SD)</li>
+                        </ul>
+                        <input type="hidden" id="exportRes" value="720">
+                    </div>
+                </div>
+                
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="exportAudio" checked>
+                        Include Audio
+                    </label>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="exportProgressUi" style="display:none; margin-top: 24px;">
+                    <label>RENDERING Engine...</label>
+                    <div class="progress-track">
+                        <div id="exportProgressBar" class="progress-fill"></div>
+                    </div>
+                    <div id="exportStatusText" class="status-subtext">Initializing...</div>
+                </div>
+            </div>
+
+            <div class="modal-actions" id="exportActions">
+                <button class="re-btn" id="btnCancelExport">CANCEL</button>
+                <button class="re-btn re-btn--primary" id="btnStartExport">BEGIN EXPORT</button>
+            </div>
+        </div>
+    </dialog>
 
     <script type="module" src="main.js"></script>
 </body>

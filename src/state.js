@@ -1,7 +1,8 @@
-import { DEFAULT_TEXT } from "./defaults.js";
+import { DEFAULT_TEXT, DEFAULT_VIDEO_SRC } from "./defaults.js";
 
 export const state = {
   storyText: DEFAULT_TEXT,
+  initialVideoSrc: DEFAULT_VIDEO_SRC,
 
   currentFontSpec: '17px "Crimson Pro", serif',
   currentLineHeight: 24,
@@ -19,4 +20,3 @@ export const state = {
   previousLeftEdges: null,
   previousRightEdges: null,
 };
-

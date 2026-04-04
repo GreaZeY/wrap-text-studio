@@ -1,3 +1,4 @@
+import { prepareWithSegments, layoutNextLine as layout } from '@chenglou/pretext';
 import { state } from './state.js';
 import { gl, asciiCanvas, videoTexture, uniforms, ASCII_DENSITY_RAMP } from './renderer.js';
 import { detectSilhouette } from './silhouette.js';
@@ -111,7 +112,7 @@ export async function startExport(videoElement) {
   const scaledFont = state.currentFontSpec.replace(/(\d+)px/, (_, size) => `${parseFloat(size) * fontScale}px`);
   const fontColor = document.getElementById('textColor')?.value || "#d4d0c8";
 
-  const exportLayout = window.g0 ? window.g0(state.storyText, scaledFont) : null;
+  const exportLayout = prepareWithSegments(state.storyText, scaledFont);
   const { charW, charH } = state.cellDimensions;
 
   function burnFrame() {
@@ -180,7 +181,7 @@ export async function startExport(videoElement) {
         const regionWidth = region.right - region.left;
         if (regionWidth < (MIN_TEXT_REGION_WIDTH * fontScale)) continue;
 
-        const segment = window.b0(exportLayout, textCursor, regionWidth);
+        const segment = layout(exportLayout, textCursor, regionWidth);
         if (!segment) break;
 
         renderCtx.fillText(segment.text, region.left, yPosition);

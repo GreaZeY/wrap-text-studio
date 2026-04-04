@@ -1,3 +1,4 @@
+import { layoutNextLine } from '@chenglou/pretext';
 import { state } from './state.js';
 
 const MARGIN = 24;
@@ -9,8 +10,7 @@ export function placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewpor
   const textCursor = { segmentIndex: 0, graphemeIndex: 0 };
   let yPosition = lineHeight;
 
-  if (!state.storyText) return;
-  if (!window.g0 || !window.b0 || !state.parsedLayout) return;
+  if (!state.storyText || !state.parsedLayout) return;
 
   const overlay = document.getElementById('textOverlay');
   const fragment = document.createDocumentFragment();
@@ -36,7 +36,7 @@ export function placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewpor
       const regionWidth = region.right - region.left;
       if (regionWidth < MIN_TEXT_REGION_WIDTH) continue;
 
-      const segment = window.b0(state.parsedLayout, textCursor, regionWidth);
+      const segment = layoutNextLine(state.parsedLayout, textCursor, regionWidth);
       if (!segment) break;
 
       const span = document.createElement("span");

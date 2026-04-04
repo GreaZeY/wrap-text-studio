@@ -1,3 +1,4 @@
+import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './state.js';
 import { renderStaticLayout } from './text-layout.js';
 import { openExportModal, cancelExport, startExport } from './export.js';
@@ -24,7 +25,7 @@ function bindTypographyControls(refreshTextCallback) {
   });
 }
 
-function applyTextStyles(refreshTextCallback) {
+function applyTextStyles() {
   const color = document.getElementById('textColor').value;
   const size = document.getElementById('fontSize').value;
   const family = document.getElementById('fontFamily').value;
@@ -51,8 +52,8 @@ function applyTextStyles(refreshTextCallback) {
   state.currentFontSpec = `${isItalic ? "italic" : "normal"} ${weight} ${size}px ${family}`;
   state.currentLineHeight = parseInt(document.getElementById('lineHeight').value);
 
-  if (window.g0 && state.storyText) {
-    state.parsedLayout = window.g0(state.storyText, state.currentFontSpec);
+  if (state.storyText) {
+    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
   }
 
   state.needsRedraw = true;
@@ -244,13 +245,13 @@ function bindExportControls(videoElement) {
   startBtn.addEventListener('click', () => startExport(videoElement));
 }
 
-function bindTextEditor(videoElement, refreshTextCallback) {
+function bindTextEditor() {
   const editor = document.getElementById('textEditor');
 
   editor.addEventListener('input', (e) => {
     state.storyText = e.target.value;
-    if (window.g0) {
-      state.parsedLayout = window.g0(state.storyText, state.currentFontSpec);
+    if (state.storyText) {
+      state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
     }
 
     const container = document.getElementById("videoContainer");
