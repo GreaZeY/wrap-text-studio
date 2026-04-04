@@ -200,6 +200,7 @@ function bindCustomDropdowns() {
     dropdown.querySelectorAll('li').forEach(item => {
       item.addEventListener('click', (e) => {
         headerText.textContent = item.textContent;
+        headerText.style.fontFamily = item.style.fontFamily;
         hiddenInput.value = item.dataset.value;
         dropdown.classList.remove('open');
         dropdown.querySelectorAll('li').forEach(li => li.classList.remove('selected'));

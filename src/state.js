@@ -4,7 +4,7 @@ export const state = {
   storyText: DEFAULT_TEXT,
   initialVideoSrc: DEFAULT_VIDEO_SRC,
 
-  currentFontSpec: '17px "Crimson Pro", serif',
+  currentFontSpec: '17px "Poppins", sans-serif',
   currentLineHeight: 24,
 
   cellDimensions: { charW: 7, charH: 14 },
