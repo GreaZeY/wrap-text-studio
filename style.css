@@ -9,6 +9,7 @@
   --re-gold: #c9953c;
   --ink: #e0d1b1;
   --ease: cubic-bezier(0.19, 1, 0.22, 1);
+  --sidebar-w: 320px;
 }
 
 /* ── Reset ────────────────────────────────────────────────── */
@@ -44,8 +45,8 @@ body {
 
 /* ── Sidebar ─────────────────────────────────────────────── */
 .sidebar {
-  width: 320px;
-  min-width: 320px;
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
   background: var(--bg-sidebar);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
@@ -56,13 +57,13 @@ body {
   overflow-x: hidden;
   transition: transform 0.6s var(--ease), margin-left 0.6s var(--ease), opacity 0.4s var(--ease);
   position: relative;
-  z-index: 100;
+  z-index: 1000; /* Increased for mobile overlap */
 }
 
-/* ── Modern Universal Scrollbars ─────────────────────────── */
+/* ── Scrollbars ────────────────────────────────────────── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(139, 0, 0, 0.1) transparent;
+  scrollbar-color: rgba(165, 161, 161, 0.2) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -75,22 +76,18 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 0, 0, 0.1);
+  background: rgba(165, 161, 161, 0.2);
   border-radius: 10px;
-  transition: background 0.3s var(--ease);
-}
-
-*:hover::-webkit-scrollbar-thumb {
-  background: rgba(139, 0, 0, 0.4);
+  transition: background 0.3s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--re-red) !important;
+  background: rgba(165, 161, 161, 0.5);
 }
 
 .sidebar-closed {
-  transform: translateX(-320px);
-  margin-left: -320px;
+  transform: translateX(calc(-1 * var(--sidebar-w)));
+  margin-left: calc(-1 * var(--sidebar-w));
   opacity: 0;
   pointer-events: none;
 }
@@ -110,7 +107,6 @@ body {
   letter-spacing: -0.02em; /* Modern tight kerning */
   color: var(--re-gold);
   margin: 0;
-  text-transform: uppercase;
 }
 
 .sidebar-toggle {
@@ -197,7 +193,6 @@ body {
 
 .panel h3 {
   font-size: 0.75rem;
-  text-transform: uppercase;
   letter-spacing: 0.15em;
   color: rgba(255, 255, 255, 0.4);
   margin-bottom: 12px;
@@ -461,7 +456,6 @@ body {
     font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.4);
     margin-bottom: 8px;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
@@ -518,7 +512,6 @@ body {
   font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
   transition: all 0.2s var(--ease);
@@ -712,22 +705,72 @@ body {
   font-size: 0.8rem;
   font-weight: 700;
   color: white;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   animation: pulse 1s infinite alternate;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  background: white;
-  border-radius: 50%;
 }
 
 @keyframes pulse {
     from { opacity: 0.6; }
     to { opacity: 1; }
+}
+
+/* ── Responsiveness ──────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 280px; }
+  .logo { font-size: 1.5rem; }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    height: 100%;
+    box-shadow: 20px 0 60px rgba(0,0,0,0.9);
+  }
+
+  .sidebar-closed {
+    transform: translateX(-100%);
+    margin-left: 0; /* Don't squash workspace on mobile */
+  }
+
+  .workspace {
+    width: 100%;
+  }
+
+  .config-toggle {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateX(0) !important;
+  }
+
+  .export-modal {
+    width: 95%;
+    max-width: 450px;
+  }
+
+  .controls-left, .controls-right {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root { --sidebar-w: 100%; }
+  
+  .sidebar {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .logo { font-size: 1.2rem; }
+  
+  .player-controls {
+    padding: 10px 12px 20px;
+  }
+
+  .time-display {
+    font-size: 0.75rem;
+  }
 }
 
 /* ── Cinematic Loader ────────────────────────────────────── */
@@ -829,7 +872,6 @@ body {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.5);
   margin-bottom: 8px;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
