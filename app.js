@@ -394,6 +394,12 @@ function updateTextStyles() {
     const weight = document.getElementById('fontWeight').value;
     const isItalic = document.getElementById('toggleItalic')?.classList.contains('active');
     
+    const btnBold = document.getElementById('toggleBold');
+    if (btnBold) {
+        if (parseInt(weight) >= 600) btnBold.classList.add('active');
+        else btnBold.classList.remove('active');
+    }
+    
     // Update live DOM overlay via global styles
     const textOverlay = document.getElementById('textOverlay');
     if (textOverlay) {
@@ -423,6 +429,36 @@ function updateTextStyles() {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', updateTextStyles);
 });
+
+const btnBold = document.getElementById('toggleBold');
+const btnItalic = document.getElementById('toggleItalic');
+const weightInput = document.getElementById('fontWeight');
+
+if (btnBold) {
+    btnBold.addEventListener('click', () => {
+        btnBold.classList.toggle('active');
+        weightInput.value = btnBold.classList.contains('active') ? "700" : "400";
+        
+        // Sync Dropdown UI text visually
+        const dropdownHeader = weightInput.parentElement.querySelector('span');
+        const listItems = weightInput.parentElement.querySelectorAll('li');
+        listItems.forEach(li => li.classList.remove('selected'));
+        
+        const activeLi = Array.from(listItems).find(li => li.dataset.value === weightInput.value);
+        if(activeLi) {
+            activeLi.classList.add('selected');
+            dropdownHeader.textContent = activeLi.textContent;
+        }
+        updateTextStyles();
+    });
+}
+
+if (btnItalic) {
+    btnItalic.addEventListener('click', () => {
+        btnItalic.classList.toggle('active');
+        updateTextStyles();
+    });
+}
 
 const uploadZone = document.getElementById('uploadZone');
 uploadZone.addEventListener('click', () => fileInput.click());

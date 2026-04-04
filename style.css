@@ -618,7 +618,6 @@ body {
 .text-overlay span {
   position: absolute;
   white-space: pre;
-  color: var(--ink);
   font-family: inherit;
   font-weight: inherit;
   line-height: 1;
