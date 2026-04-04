@@ -162,7 +162,7 @@
     <!-- Export Settings Modal -->
     <dialog id="exportModal" class="export-modal">
         <div class="modal-content">
-            <h2>EXPORT SESSION</h2>
+            <h2>EXPORT VIDEO</h2>
             
             <div class="modal-body">
                 <div class="control-group">
@@ -187,17 +187,32 @@
 
                 <!-- Progress Bar -->
                 <div id="exportProgressUi" style="display:none; margin-top: 24px;">
-                    <label>RENDERING Engine...</label>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                        <label style="margin: 0;">PROCESING...</label>
+                        <span id="exportTimer" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--re-gold);">00:00</span>
+                    </div>
                     <div class="progress-track">
                         <div id="exportProgressBar" class="progress-fill"></div>
                     </div>
-                    <div id="exportStatusText" class="status-subtext">Initializing...</div>
+                    <div id="exportStatusText" class="status-subtext">Preparing individual frames...</div>
                 </div>
             </div>
 
             <div class="modal-actions" id="exportActions">
                 <button class="re-btn" id="btnCancelExport">CANCEL</button>
-                <button class="re-btn re-btn--primary" id="btnStartExport">BEGIN EXPORT</button>
+                <button class="re-btn re-btn--primary" id="btnStartExport">START EXPORT</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Custom Cancel Confirmation -->
+    <dialog id="cancelConfirmModal" class="export-modal" style="max-width: 320px; text-align: center;">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">CANCEL EXPORT?</h3>
+            <p style="font-size: 14px; opacity: 0.8; margin-bottom: 24px;">Your progress will be lost. Are you sure?</p>
+            <div class="modal-actions" style="justify-content: center; gap: 12px;">
+                <button class="re-btn" id="btnCancelNo">KEEP GOING</button>
+                <button class="re-btn re-btn--primary" id="btnCancelYes" style="background: #a33;">YES, STOP</button>
             </div>
         </div>
     </dialog>

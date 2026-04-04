@@ -12,16 +12,22 @@ const SILHOUETTE_PADDING = 6;
 const MIN_TEXT_REGION_WIDTH = 40;
 
 let isExporting = false;
+let exportStartTime = 0;
+let exportTimerInterval = null;
 let muxer = null;
 let videoEncoder = null;
 let audioEncoder = null;
 
 const exportModal = document.getElementById('exportModal');
+const cancelConfirmModal = document.getElementById('cancelConfirmModal');
 const btnStartExport = document.getElementById('btnStartExport');
 const btnCancelExport = document.getElementById('btnCancelExport');
+const btnCancelYes = document.getElementById('btnCancelYes');
+const btnCancelNo = document.getElementById('btnCancelNo');
 const progressContainer = document.getElementById('exportProgressUi');
 const progressBar = document.getElementById('exportProgressBar');
 const statusText = document.getElementById('exportStatusText');
+const timerDisplay = document.getElementById('exportTimer');
 
 export function openExportModal() {
   if (isExporting) return;
@@ -30,12 +36,42 @@ export function openExportModal() {
   btnStartExport.disabled = false;
   btnCancelExport.disabled = false;
   progressBar.style.width = '0%';
+  timerDisplay.textContent = '00:00';
   exportModal.showModal();
 }
 
+function updateExportTimer() {
+  const elapsed = Math.floor((performance.now() - exportStartTime) / 1000);
+  const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+  const secs = (elapsed % 60).toString().padStart(2, '0');
+  timerDisplay.textContent = `${mins}:${secs}`;
+}
+
 export function cancelExport() {
-  if (isExporting) return;
+  if (isExporting) {
+    cancelConfirmModal.showModal();
+  } else {
+    exportModal.close();
+  }
+}
+
+// Handle Custom Confirmation
+btnCancelNo.onclick = () => cancelConfirmModal.close();
+btnCancelYes.onclick = () => {
+  stopExportExecution();
+  cancelConfirmModal.close();
   exportModal.close();
+};
+
+function stopExportExecution() {
+  isExporting = false;
+  if (exportTimerInterval) clearInterval(exportTimerInterval);
+  // Encoders don't have a simple stop, so we just let them drift or they close on gc
+  videoEncoder = null;
+  audioEncoder = null;
+  muxer = null;
+  btnStartExport.disabled = false;
+  btnCancelExport.disabled = false;
 }
 
 export async function startExport(videoElement) {
@@ -43,8 +79,12 @@ export async function startExport(videoElement) {
   isExporting = true;
 
   btnStartExport.disabled = true;
-  btnCancelExport.disabled = true;
+  btnCancelExport.disabled = false; 
   progressContainer.style.display = 'block';
+  statusText.textContent = "Preparing video frames...";
+
+  exportStartTime = performance.now();
+  exportTimerInterval = setInterval(updateExportTimer, 1000);
 
   const targetHeight = parseInt(document.getElementById('exportRes').value);
   const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
@@ -78,8 +118,7 @@ export async function startExport(videoElement) {
   let audioBuffer = null;
   if (includeAudio) {
     try {
-      statusText.textContent = "Extracting Audio...";
-      progressContainer.style.display = 'block';
+      statusText.textContent = "Extracting audio track...";
       const response = await fetch(videoElement.src);
       const arrayBuffer = await response.arrayBuffer();
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -110,7 +149,7 @@ export async function startExport(videoElement) {
   });
 
   videoEncoder.configure({
-    codec: 'vp09.00.10.08', // VP9 Profile 0
+    codec: 'vp09.00.10.08',
     width: targetWidth,
     height: targetHeight,
     bitrate: bitrate
@@ -130,7 +169,7 @@ export async function startExport(videoElement) {
     });
   }
 
-  const fontScale = targetHeight / savedHeight;
+  const fontScale = targetHeight / (savedHeight / (window.devicePixelRatio || 1));
   const scaledLineHeight = (state.currentLineHeight) * fontScale;
   const scaledFont = state.currentFontSpec.replace(/(\d+)px/, (_, size) => `${parseFloat(size) * fontScale}px`);
   const fontColor = document.getElementById('textColor')?.value || "#d4d0c8";
@@ -147,8 +186,8 @@ export async function startExport(videoElement) {
     const textCursor = { segmentIndex: 0, graphemeIndex: 0 };
     renderCtx.clearRect(0, 0, targetWidth, targetHeight);
 
-    const gridRows = Math.ceil(targetHeight / charH);
-    const gridCols = Math.ceil(targetWidth / charW);
+    const gridRows = Math.ceil(targetHeight / (charH * fontScale));
+    const gridCols = Math.ceil(targetWidth / (charW * fontScale));
 
     const rgb = hexToRgb(fontColor);
 
@@ -156,16 +195,16 @@ export async function startExport(videoElement) {
     gl.bindTexture(gl.TEXTURE_2D, videoTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offlineVideo);
     gl.uniform2f(uniforms.resolution, targetWidth, targetHeight);
-    gl.uniform2f(uniforms.cellSize, charW, charH);
+    gl.uniform2f(uniforms.cellSize, charW * fontScale, charH * fontScale);
     gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
     gl.uniform2f(uniforms.silOffset, 0, 0);
     gl.uniform1f(uniforms.numChars, state.asciiRamp.length);
-    gl.uniform3f(uniforms.asciiColor, rgb[0], rgb[1], rgb[2]);
+    gl.uniform3f(uniforms.asciiColor, rgb[0]/255, rgb[1]/255, rgb[2]/255);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     renderCtx.drawImage(asciiCanvas, 0, 0);
 
-    const silhouette = detectSilhouette(targetWidth, targetHeight, charW, charH, offlineVideo);
+    const silhouette = detectSilhouette(targetWidth, targetHeight, charW * fontScale, charH * fontScale, offlineVideo);
 
     renderCtx.textBaseline = "top";
     renderCtx.font = scaledFont;
@@ -221,29 +260,26 @@ export async function startExport(videoElement) {
       yPosition += scaledLineHeight;
     }
 
-    // Capture the frame using WebCodecs (Hardware accelerated)
-    const timestamp = currentFrame * (1000000 / 30); // 30 FPS in microseconds
+    const timestamp = currentFrame * (1000000 / 30);
     const frame = new VideoFrame(renderCanvas, { timestamp });
-    
-    // Encode the frame immediately
     videoEncoder.encode(frame);
-    frame.close(); // Crucial: free GPU/memory resources
+    frame.close();
     
     currentFrame++;
 
     const progress = (currentFrame / totalFrames) * 100;
     progressBar.style.width = `${Math.min(100, progress)}%`;
-    statusText.textContent = `${Math.floor(progress)}% Optimized`;
+    statusText.textContent = `${Math.floor(progress)}% Finished`;
 
     if (currentFrame < totalFrames) {
       offlineVideo.currentTime = currentFrame / 30;
       offlineVideo.requestVideoFrameCallback(burnFrame);
     } else {
-      // Encode Audio if present
       if (audioEncoder && audioBuffer) {
-        statusText.textContent = "Finalizing Audio...";
-        const samplesPerFrame = Math.floor(audioBuffer.sampleRate / 10); // 100ms chunks
+        statusText.textContent = "Encoding audio...";
+        const samplesPerFrame = Math.floor(audioBuffer.sampleRate / 10);
         for (let i = 0; i < audioBuffer.length; i += samplesPerFrame) {
+          if (!isExporting) break; // Check for cancel
           const frameCount = Math.min(samplesPerFrame, audioBuffer.length - i);
           const data = new Float32Array(frameCount * audioBuffer.numberOfChannels);
           for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
@@ -265,7 +301,8 @@ export async function startExport(videoElement) {
         await audioEncoder.flush();
       }
 
-      // Finalize the muxer and encoder
+      if (!isExporting) return; // Final cancel check
+
       await videoEncoder.flush();
       muxer.finalize();
       
@@ -274,17 +311,14 @@ export async function startExport(videoElement) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `wrap-studio-${targetHeight}p-${Date.now()}.webm`;
+      link.download = `storybook-export-${targetHeight}p-${Date.now()}.webm`;
       link.click();
 
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-      isExporting = false;
+      stopExportExecution();
       exportModal.close();
       resizeCanvases();
-
-      const container = document.getElementById("videoContainer");
-      renderStaticLayout(container.clientWidth, container.clientHeight);
+      renderStaticLayout(savedWidth, savedHeight);
     }
   }
 
