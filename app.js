@@ -424,15 +424,44 @@ function updateTextStyles() {
     if (el) el.addEventListener('input', updateTextStyles);
 });
 
-btnUpload.addEventListener('click', () => fileInput.click());
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const url = URL.createObjectURL(file);
         y.src = url;
         y.play(); // trigger metadata
-        setTimeout(() => { y.pause(); playing = false; btnPlayPause.textContent = "▶\u2002PLAY"; }, 100);
+        setTimeout(() => { y.pause(); playing = false; btnPlayPause.innerHTML = iconPlay; }, 100);
     }
+});
+
+const asciiScaleSlider = document.getElementById('asciiScale');
+const asciiScaleVal = document.getElementById('asciiScaleVal');
+asciiScaleSlider.addEventListener('input', (e) => {
+    const scale = parseInt(e.target.value);
+    asciiScaleVal.textContent = scale;
+    // Map text block dimensions maintaining precise aspect logic matching WebGL projection parameters
+    f5 = { charW: Math.floor(scale * 0.5), charH: scale };
+    
+    // Fill background of custom slider exactly
+    asciiScaleSlider.style.setProperty('--val', ((scale - 4) / 60) * 100 + '%');
+    
+    forceRedraw = true;
+    if (!U0) {
+        const workspace = document.getElementById("videoContainer");
+        K5(workspace.clientWidth, workspace.clientHeight);
+    }
+});
+
+['fontSize', 'lineHeight'].forEach(id => {
+    document.getElementById(id).addEventListener('input', (e) => {
+        const el = e.target;
+        // Native custom CSS highlight trackers
+        const min = parseFloat(el.min);
+        const max = parseFloat(el.max);
+        el.style.setProperty('--val', ((el.value - min) / (max - min)) * 100 + '%');
+    });
 });
 
 let playing = false;

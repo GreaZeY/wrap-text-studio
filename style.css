@@ -68,20 +68,121 @@ body {
   margin-bottom: 12px;
 }
 
-#textEditor {
-  width: 100%;
-  height: 280px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  padding: 12px;
-  color: var(--ink);
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  resize: none;
-  outline: none;
+/* ── Premium Upload Box ──────────────────────────────────── */
+.upload-panel {
+  padding-bottom: 0px;
 }
+.upload-box {
+  width: 100%;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.upload-box:hover {
+  border-color: var(--re-red);
+  background: rgba(139, 0, 0, 0.1);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(139, 0, 0, 0.2);
+}
+.upload-box svg {
+  opacity: 0.8;
+  transition: transform 0.2s;
+}
+.upload-box:hover svg {
+  transform: translateY(-4px) scale(1.1);
+  color: var(--re-amber);
+}
+
+/* ── Modern Form Components ──────────────────────────────── */
+.custom-textarea {
+  width: 100%;
+  height: 220px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 14px;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.custom-textarea:focus {
+  border-color: var(--re-red);
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.3);
+}
+
+.custom-select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.custom-select:focus {
+  border-color: var(--re-red);
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.3);
+}
+
+.custom-color-picker {
+  width: 100%;
+  height: 40px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.custom-color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+.custom-color-picker::-webkit-color-swatch { border: none; border-radius: 4px; }
+.custom-color-picker:hover { box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
+
+.custom-slider {
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: linear-gradient(to right, var(--re-red) var(--val, 0%), rgba(255, 255, 255, 0.1) var(--val, 0%));
+  border-radius: 3px;
+  cursor: pointer;
+  outline: none;
+  margin-top: 6px;
+  transition: height 0.1s;
+}
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border: 2px solid var(--re-red);
+  border-radius: 50%;
+  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.custom-slider:hover { height: 8px; }
+.custom-slider:hover::-webkit-slider-thumb { transform: scale(1.2); box-shadow: 0 0 10px var(--re-red); }
 
 /* ── Styling Panel ───────────────────────────────────────── */
 .panel .control {
@@ -107,32 +208,6 @@ body {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 16px;
-}
-
-.panel select, 
-.panel input[type="color"] {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    outline: none;
-    transition: all 0.2s;
-}
-
-.panel select:focus {
-    border-color: var(--re-red);
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.panel input[type="range"] {
-    width: 100%;
-    accent-color: var(--re-amber);
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    cursor: pointer;
 }
 
 .style-toggles {

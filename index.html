@@ -15,18 +15,33 @@
         <aside class="sidebar">
             <h1 class="logo">Wrap Studio</h1>
             
+            <section class="panel upload-panel">
+                <div class="upload-box" id="uploadZone">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    <span>Import Media File</span>
+                    <input type="file" id="fileInput" accept="video/*,image/gif" style="display:none">
+                </div>
+            </section>
+            
+            <section class="panel">
+                <h3>🎛️ ASCII Engine</h3>
+                <div class="control">
+                    <label>Matrix Size: <span id="asciiScaleVal">12</span>px</label>
+                    <input type="range" class="custom-slider" id="asciiScale" min="4" max="64" value="12">
+                </div>
+            </section>
+
             <section class="panel">
                 <h3>📖 Custom Story</h3>
-                <textarea id="textEditor" placeholder="Paste your story here..."></textarea>
-                <p class="hint">Defaulting to resident evil script.</p>
+                <textarea id="textEditor" class="custom-textarea" placeholder="Paste your story here..."></textarea>
             </section>
 
             <section class="panel styling">
-                <h3>🎨 Text Styling</h3>
+                <h3>🎨 Typography</h3>
                 <div class="control-grid">
                     <div class="control">
-                        <label>Font</label>
-                        <select id="fontFamily">
+                        <label>Font Family</label>
+                        <select id="fontFamily" class="custom-select">
                             <option value="'Crimson Pro', serif">Serif (Crimson)</option>
                             <option value="'Inter', sans-serif">Sans (Inter)</option>
                             <option value="'Bebas Neue', cursive">Display (Bebas)</option>
@@ -35,68 +50,30 @@
                     </div>
                     <div class="control">
                         <label>Color</label>
-                        <input type="color" id="textColor" value="#e0d1b1">
+                        <input type="color" id="textColor" class="custom-color-picker" value="#e0d1b1">
                     </div>
                 </div>
 
                 <div class="control">
-                    <label>Size: <span id="valSize">17</span>px</label>
-                    <input type="range" id="fontSize" min="10" max="40" value="17">
+                    <label>Font Size: <span id="valSize">17</span>px</label>
+                    <input type="range" class="custom-slider" id="fontSize" min="10" max="40" value="17">
                 </div>
 
                 <div class="control">
-                    <label>Spacing: <span id="valLineHeight">24</span>px</label>
-                    <input type="range" id="lineHeight" min="14" max="60" value="24">
+                    <label>Line Spacing: <span id="valLineHeight">24</span>px</label>
+                    <input type="range" class="custom-slider" id="lineHeight" min="14" max="60" value="24">
                 </div>
 
                 <div class="style-toggles">
                     <button class="toggle" id="toggleBold"><b>B</b></button>
                     <button class="toggle" id="toggleItalic"><i>I</i></button>
-                    <select id="fontWeight">
+                    <select id="fontWeight" class="custom-select">
                         <option value="400">400 (Normal)</option>
                         <option value="600">600 (Semi)</option>
                         <option value="700" selected>700 (Bold)</option>
                     </select>
                 </div>
             </section>
-
-            <section class="panel tuning">
-                <h3>🎚️ Wrap Tuning</h3>
-                <div class="control">
-                    <label>AI Confidence: <span id="valConfidence">120</span></label>
-                    <input type="range" id="wrapConfidence" min="10" max="250" value="120">
-                </div>
-                <div class="control">
-                    <label>Edge Buffer: <span id="valBuffer">10</span>px</label>
-                    <input type="range" id="wrapBuffer" min="0" max="50" value="10">
-                </div>
-                <div class="control-grid">
-                    <div class="control">
-                        <label>AI Contrast</label>
-                        <input type="range" id="aiContrast" min="1" max="3" step="0.1" value="1.5">
-                    </div>
-                    <div class="control">
-                        <label>AI Bright</label>
-                        <input type="range" id="aiBrightness" min="0.5" max="2" step="0.1" value="1.2">
-                    </div>
-                </div>
-                <p class="hint">Adjusting AI filters (Super-Vision) won't affect visible video.</p>
-            </section>
-
-            <section class="panel instructions">
-                <h3>✨ Perfect Wrap Guide</h3>
-                <ul>
-                    <li><strong>Isolation:</strong> AI works best with distinct human figures.</li>
-                    <li><strong>Contrast:</strong> Characters should be clearly visible against the background.</li>
-                    <li><strong>Framing:</strong> Centered subjects allow text to flow on both sides.</li>
-                    <li><strong>Clip Length:</strong> 10-30 seconds is ideal for export.</li>
-                </ul>
-            </section>
-
-            <div class="sidebar-footer">
-                <button class="re-btn re-btn--primary" id="btnUpload">📁 UPLOAD VIDEO/GIF</button>
-                <input type="file" id="fileInput" accept="video/*,image/gif" style="display:none">
-            </div>
         </aside>
 
         <!-- Main Workspace -->
@@ -139,10 +116,6 @@
                         </div>
                         
                         <div class="controls-right">
-                            <button class="icon-btn" id="btnUpload" title="Upload Video Source">
-                                <input type="file" id="fileInput" accept="video/*" style="display:none">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2v2h14v-2H5z"/></svg>
-                            </button>
                             <button class="icon-btn export-btn" id="btnExport" title="Export Session (WebM)">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                             </button>
