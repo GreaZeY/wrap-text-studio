@@ -40,8 +40,7 @@ export interface AppState {
     layoutTime: number;
     analysisTime: number;
     measureTime: number;
-    reflows: number;
-    fps: number;
+    fps: number;    
     domLayoutTime: number;
   };
   renderEngine: 'pretext' | 'dom';

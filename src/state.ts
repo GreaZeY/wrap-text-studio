@@ -25,7 +25,6 @@ export const state: AppState = {
     layoutTime: 0,
     analysisTime: 0,
     measureTime: 0,
-    reflows: 0,
     fps: 0,
     domLayoutTime: 0,
   },

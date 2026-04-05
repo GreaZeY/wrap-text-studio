@@ -88,6 +88,7 @@ export function placeTextWithDom(
   const lineHeight = state.currentLineHeight;
   let yPosition = lineHeight;
   let domLayoutAccumulator = 0;
+  let domMeasureAccumulator = 0;
 
   if (!state.storyText) return;
 
@@ -107,56 +108,82 @@ export function placeTextWithDom(
   measurer.style.font = state.currentFontSpec;
   document.body.appendChild(measurer);
 
-  while (yPosition + lineHeight <= viewportHeight && wordIndex < words.length) {
-    const topRow = Math.max(0, (yPosition / silhouette.charH) | 0);
-    const bottomRow = Math.min(
-      silhouette.rows - 1,
-      Math.ceil((yPosition + lineHeight) / silhouette.charH)
-    );
-    let narrowestLeft = 32767;
-    let widestRight = -1;
-
-    for (let row = topRow; row <= bottomRow; row++) {
-      const left = silhouette.leftEdges ? silhouette.leftEdges[row] : -1;
-      const right = silhouette.rightEdges ? silhouette.rightEdges[row] : -1;
-      if (left !== -1) {
-        if (left < narrowestLeft) narrowestLeft = left;
-        if (right > widestRight) widestRight = right;
-      }
-    }
-
-    const regions = computeTextRegions(
-      narrowestLeft,
-      widestRight,
-      silhouetteOffsetX,
-      silhouette.charW,
-      viewportWidth
-    );
-
-    for (const region of regions) {
-      const regionWidth = region.right - region.left;
-      if (regionWidth < MIN_TEXT_REGION_WIDTH) continue;
-
-      let lineText = '';
-      const startMeasure = performance.now();
-
-      while (wordIndex < words.length) {
-        const nextWord = words[wordIndex];
-        const testText = lineText ? lineText + ' ' + nextWord : nextWord;
-        measurer.textContent = testText;
-        
-        // FORCING REFLOW: Reading offsetWidth
-        const measuredWidth = measurer.offsetWidth;
-        state.benchmarks.reflows++;
-
-        if (measuredWidth <= regionWidth) {
-          lineText = testText;
-          wordIndex++;
-        } else {
-          break;
+    while (yPosition + lineHeight <= viewportHeight && wordIndex < words.length) {
+      const topRow = Math.max(0, (yPosition / silhouette.charH) | 0);
+      const bottomRow = Math.min(
+        silhouette.rows - 1,
+        Math.ceil((yPosition + lineHeight) / silhouette.charH)
+      );
+      let narrowestLeft = 32767;
+      let widestRight = -1;
+  
+      for (let row = topRow; row <= bottomRow; row++) {
+        const left = silhouette.leftEdges ? silhouette.leftEdges[row] : -1;
+        const right = silhouette.rightEdges ? silhouette.rightEdges[row] : -1;
+        if (left !== -1) {
+          if (left < narrowestLeft) narrowestLeft = left;
+          if (right > widestRight) widestRight = right;
         }
       }
-      domLayoutAccumulator += performance.now() - startMeasure;
+  
+      const regions = computeTextRegions(
+        narrowestLeft,
+        widestRight,
+        silhouetteOffsetX,
+        silhouette.charW,
+        viewportWidth
+      );
+  
+      for (const region of regions) {
+        const regionWidth = region.right - region.left;
+        if (regionWidth < MIN_TEXT_REGION_WIDTH) continue;
+  
+        let lineText = '';
+        const startLine = performance.now();
+  
+        while (wordIndex < words.length) {
+          const nextWord = words[wordIndex];
+          const testText = lineText ? lineText + ' ' + nextWord : nextWord;
+          measurer.textContent = testText;
+          
+          let startOffset = performance.now();
+          // FORCING REFLOW: Reading offsetWidth
+          let measuredWidth = measurer.offsetWidth;
+          domMeasureAccumulator += performance.now() - startOffset;
+  
+          if (measuredWidth <= regionWidth) {
+            lineText = testText;
+            wordIndex++;
+          } else {
+            if (lineText === '') {
+              let partialWord = '';
+              for (let i = 0; i < nextWord.length; i++) {
+                const char = nextWord[i];
+                measurer.textContent = partialWord + char;
+                
+                startOffset = performance.now();
+                measuredWidth = measurer.offsetWidth;
+                domMeasureAccumulator += performance.now() - startOffset;
+                
+                if (measuredWidth <= regionWidth) {
+                  partialWord += char;
+                } else {
+                  break;
+                }
+              }
+              if (partialWord) {
+                lineText = partialWord;
+                // Update the remaining part of the word for the next pass
+                words[wordIndex] = nextWord.slice(partialWord.length);
+              } else {
+                // Not even one char fits, skip word to prevent infinite loop
+                wordIndex++;
+              }
+            }
+            break;
+          }
+        }
+        domLayoutAccumulator += performance.now() - startLine;
 
       if (lineText) {
         const span = document.createElement('span');
@@ -171,7 +198,8 @@ export function placeTextWithDom(
   }
 
   document.body.removeChild(measurer);
-  state.benchmarks.domLayoutTime = domLayoutAccumulator;
+  state.benchmarks.domLayoutTime = domLayoutAccumulator - domMeasureAccumulator;
+  state.benchmarks.measureTime = domMeasureAccumulator;
 
   overlay.innerHTML = '';
   overlay.appendChild(fragment);

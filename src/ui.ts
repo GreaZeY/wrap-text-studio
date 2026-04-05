@@ -1,4 +1,4 @@
-import { prepareWithSegments } from '@chenglou/pretext';
+import { prepareWithSegments, profilePrepare } from '@chenglou/pretext';
 import { state } from './state.js';
 import { openExportModal, cancelExport, startExport } from './export.js';
 import { buildGlyphAtlas } from './renderer.js';
@@ -102,14 +102,14 @@ function applyTextStyles(refreshTextCallback: () => void) {
   );
 
   if (state.storyText) {
-    const startPrepare = performance.now();
+    const profile = profilePrepare(state.storyText, state.currentFontSpec);
     state.parsedLayout = prepareWithSegments(
       state.storyText,
       state.currentFontSpec
     ) as PreparedTextWithSegments;
-    const prepareDuration = performance.now() - startPrepare;
-    state.benchmarks.prepareTime = prepareDuration;
-    state.benchmarks.measureTime = prepareDuration * 0.7; // Estimate measureText overhead
+    
+    state.benchmarks.prepareTime = profile.totalMs;
+    state.benchmarks.measureTime = profile.measureMs;
   }
 
   state.needsRedraw = true;
@@ -451,14 +451,14 @@ function bindTextEditor(refreshTextCallback: () => void) {
   editor.addEventListener('input', (e: any) => {
     state.storyText = e.target.value;
     if (state.storyText) {
-      const startPrepare = performance.now();
+      const profile = profilePrepare(state.storyText, state.currentFontSpec);
       state.parsedLayout = prepareWithSegments(
         state.storyText,
         state.currentFontSpec
       ) as PreparedTextWithSegments;
-      const prepareDuration = performance.now() - startPrepare;
-      state.benchmarks.prepareTime = prepareDuration;
-      state.benchmarks.measureTime = prepareDuration * 0.7;
+      
+      state.benchmarks.prepareTime = profile.totalMs;
+      state.benchmarks.measureTime = profile.measureMs;
     }
 
     if (refreshTextCallback) refreshTextCallback();
