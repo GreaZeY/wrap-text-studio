@@ -31,6 +31,11 @@ vec3 rgb2hsv(vec3 c) {
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
+float getMaxDiff(vec3 a, vec3 b) {
+    vec3 d = abs(a - b);
+    return max(max(d.r, d.g), d.b);
+}
+
 void main() {
   vec2 px = vec2(v_uv.x, 1.0 - v_uv.y) * u_resolution;
   vec2 localPx = px - u_silOffset;
@@ -59,11 +64,31 @@ void main() {
   hueDist = min(hueDist, 1.0 - hueDist);
 
   bool isBg = false;
-  if (bgHSV.y > 0.15) {
-     if (hueDist < 0.12 && pxHSV.y > 0.1) isBg = true;
+  float maxDiff = getMaxDiff(vc.rgb, chromaKey);
+  float distRGB = distance(vc.rgb, chromaKey);
+
+  // Dynamic Skin-Safe Masking Engine
+  if (bgHSV.y > 0.25) {
+      if (maxDiff < 0.12 || distRGB < 0.18) isBg = true;
+      if (hueDist < 0.09 && pxHSV.y > 0.18 && distRGB < 0.35) {
+          isBg = true;
+      }
+  } else {
+      if (maxDiff < 0.05 || distRGB < 0.08) isBg = true;
   }
-  if (distance(vc.rgb, chromaKey) < 0.15) {
-      isBg = true;
+
+  // Active Boundary Erosion (Shaves off fuzzy antialiased outlines natively)
+  if (!isBg && maxDiff < 0.24) {
+      vec2 uvOffset = (u_styleId == 0) ? (vec2(1.0) / u_gridSize) : (vec2(1.5) / u_resolution);
+      float dN = getMaxDiff(texture2D(u_video, videoUV + vec2(0, uvOffset.y)).rgb, chromaKey);
+      float dS = getMaxDiff(texture2D(u_video, videoUV - vec2(0, uvOffset.y)).rgb, chromaKey);
+      float dE = getMaxDiff(texture2D(u_video, videoUV + vec2(uvOffset.x, 0)).rgb, chromaKey);
+      float dW = getMaxDiff(texture2D(u_video, videoUV - vec2(uvOffset.x, 0)).rgb, chromaKey);
+      
+      // If ANY adjacent cell is perfectly the background, this cell is just a blended outline!
+      if (dN < 0.05 || dS < 0.05 || dE < 0.05 || dW < 0.05) {
+          isBg = true;
+      }
   }
 
   if (isBg) {
@@ -71,10 +96,12 @@ void main() {
     return;
   }
 
-  // Despill logic for slightly fringed edge pixels
+  // Target leftover fringe edge pixels and seamlessly despill their saturation
   vec3 colorData = vc.rgb;
-  if (bgHSV.y > 0.15 && hueDist < 0.2) {
-     colorData = mix(vc.rgb, vec3(lum), 0.7);
+  if (bgHSV.y > 0.2) {
+     if (hueDist < 0.14 && pxHSV.y > 0.15) {
+         colorData = mix(vc.rgb, vec3(lum), 0.7);
+     }
   }
 
   if (u_styleId == 1) { // Original
