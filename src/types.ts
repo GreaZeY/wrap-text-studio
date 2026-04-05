@@ -32,6 +32,8 @@ export interface AppState {
   cellDimensions: CellDimensions;
   artStyle: 'ascii' | 'original' | 'grayscale';
   sidebarOpen: boolean;
+  isMuted: boolean;
+  isLooping: boolean;
 }
 
 export interface RendererParams {

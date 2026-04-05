@@ -17,4 +17,6 @@ export const state: AppState = {
   cellDimensions: { charW: 2, charH: 4 },
   artStyle: 'ascii',
   sidebarOpen: true,
+  isMuted: false,
+  isLooping: false,
 };

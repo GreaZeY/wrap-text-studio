@@ -8,8 +8,8 @@ import { bindAllControls, applyTextStyles, hexToRgb } from './src/ui.js';
 
 const videoElement = document.createElement('video');
 videoElement.crossOrigin = 'anonymous';
-videoElement.loop = true;
-videoElement.muted = false;
+videoElement.loop = state.isLooping;
+videoElement.muted = state.isMuted;
 videoElement.playsInline = true;
 videoElement.preload = 'auto';
 

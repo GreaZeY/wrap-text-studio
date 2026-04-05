@@ -33,7 +33,7 @@
       content="Wrap beautiful typography around silhouettes in your videos. Create stunning ASCII art overlays and dynamic typography masks right in your browser."
     />
     <meta property="twitter:image" content="/thumb.webp" />
-
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="style.css" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CCBEWC4T3R"></script>
@@ -235,7 +235,6 @@
         <video
           id="y"
           crossorigin="anonymous"
-          loop
           playsinline
           preload="auto"
           class="media-layer"
@@ -259,6 +258,16 @@
               <button class="icon-btn" id="btnPlayPause" title="Play/Pause target">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+              <button class="icon-btn" id="btnMute" title="Mute/Unmute Audio">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 9v6h4l5 5V4L7 9zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77"></path>
+                </svg>
+              </button>
+              <button class="icon-btn" id="btnLoop" title="Toggle Looping">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"></path>
                 </svg>
               </button>
               <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
