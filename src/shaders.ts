@@ -53,7 +53,7 @@ void main() {
   vec4 vc = texture2D(u_video, videoUV);
 
   float lum = dot(vc.rgb, vec3(0.2126, 0.7152, 0.0722));
-  float clampedLum = clamp(lum * 2.4, 0.0, 1.0);
+  float clampedLum = clamp(lum, 0.0, 1.0);
 
   // Background Keying
   vec3 chromaKey = texture2D(u_video, vec2(0.01, 0.01)).rgb;
@@ -120,7 +120,7 @@ void main() {
     return;
   }
 
-  float charF = floor(pow(clampedLum, 0.9) * (u_numChars - 1.0));
+  float charF = floor(pow(clampedLum, 0.65) * (u_numChars - 1.0));
   float atlasU = (charF + cellFrac.x) / u_numChars;
   float glyphA = texture2D(u_glyphs, vec2(atlasU, cellFrac.y)).a;
 
