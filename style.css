@@ -447,6 +447,12 @@ body {
 
 /* ── Styling Panel ───────────────────────────────────────── */
 
+#asciiSettingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .panel label {
     display: block;
     font-size: 0.7rem;

@@ -190,7 +190,7 @@ function bindAsciiRampControl(refreshTextCallback: () => void) {
 
   input.addEventListener('input', (e: any) => {
     state.asciiRamp = e.target.value || " ";
-    state.cellDimensions = buildGlyphAtlas();
+    buildGlyphAtlas();
     state.needsRedraw = true;
 
     if (refreshTextCallback) refreshTextCallback();
