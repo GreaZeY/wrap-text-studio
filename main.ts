@@ -1,11 +1,10 @@
 import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './src/state.js';
+import { DEFAULT_VIDEO_SRC } from './src/defaults.js';
 import { resizeCanvases, renderStyleFrame, clearComposite } from './src/renderer.js';
 import { detectSilhouette, hasSilhouetteChanged } from './src/silhouette.js';
 import { placeTextAroundSilhouette } from './src/text-layout.js';
 import { bindAllControls, applyTextStyles, hexToRgb } from './src/ui.js';
-
-const SILHOUETTE_REFRESH_INTERVAL = 3;
 
 const videoElement = document.createElement("video");
 videoElement.crossOrigin = "anonymous";
@@ -30,8 +29,8 @@ function performFullRender() {
   const gridCols = Math.ceil(scaledWidth / charW);
   const gridRows = Math.ceil(scaledHeight / charH);
 
-  const colorHex = document.getElementById('textColor')?.value || "#ffffff";
-  const rgb = hexToRgb(colorHex);
+  const colorHex = (document.getElementById('textColor') as HTMLInputElement)?.value || "#ffffff";
+  const rgb = hexToRgb(colorHex) as [number, number, number];
 
   // 1. Clear composite canvas first
   clearComposite(viewportWidth, viewportHeight);
@@ -87,29 +86,29 @@ window.addEventListener("resize", () => {
   }
 });
 
-bindAllControls(videoElement, onVideoFrame, resizeCanvases, forceRedraw);
+bindAllControls(videoElement, onVideoFrame, forceRedraw);
 
 function initLayout() {
   window.dispatchEvent(new Event('resize'));
   const container = document.getElementById("videoContainer");
   if (container && container.clientWidth > 0) {
     resizeCanvases();
-    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
+    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec) as any;
     forceRedraw();
     applyTextStyles(forceRedraw);
   }
 }
 
 videoElement.addEventListener("loadeddata", initLayout);
-videoElement.src = state.initialVideoSrc;
+videoElement.src = DEFAULT_VIDEO_SRC;
 
 // Safety fallback for cached video or fast layout
 setTimeout(initLayout, 200);
 
-const editor = document.getElementById('textEditor');
+const editor = document.getElementById('textEditor') as HTMLInputElement;
 if (editor) editor.value = state.storyText;
 
-state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
+state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec) as any;
 
 const loader = document.getElementById('statusLabel');
 if (loader) loader.style.display = 'none';

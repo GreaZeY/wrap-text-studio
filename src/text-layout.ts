@@ -1,11 +1,12 @@
 import { layoutNextLine } from '@chenglou/pretext';
 import { state } from './state.js';
+import type { SilhouetteData, Rect } from './types.js';
 
 const MARGIN = 24;
 const SILHOUETTE_PADDING = 6;
 const MIN_TEXT_REGION_WIDTH = 40;
 
-export function placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewportWidth, viewportHeight) {
+export function placeTextAroundSilhouette(silhouette: SilhouetteData, silhouetteOffsetX: number, viewportWidth: number, viewportHeight: number) {
   const lineHeight = state.currentLineHeight;
   const textCursor = { segmentIndex: 0, graphemeIndex: 0 };
   let yPosition = lineHeight;
@@ -36,7 +37,7 @@ export function placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewpor
       const regionWidth = region.right - region.left;
       if (regionWidth < MIN_TEXT_REGION_WIDTH) continue;
 
-      const segment = layoutNextLine(state.parsedLayout, textCursor, regionWidth);
+      const segment = layoutNextLine(state.parsedLayout as any, textCursor, regionWidth);
       if (!segment) break;
 
       const span = document.createElement("span");
@@ -58,8 +59,8 @@ export function placeTextAroundSilhouette(silhouette, silhouetteOffsetX, viewpor
   }
 }
 
-function computeTextRegions(narrowestLeft, widestRight, silhouetteOffsetX, charW, viewportWidth) {
-  const regions = [];
+function computeTextRegions(narrowestLeft: number, widestRight: number, silhouetteOffsetX: number, charW: number, viewportWidth: number): Rect[] {
+  const regions: Rect[] = [];
 
   if (widestRight === -1) {
     regions.push({ left: MARGIN, right: viewportWidth - MARGIN });

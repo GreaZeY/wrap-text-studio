@@ -3,12 +3,13 @@ import { state } from './state.js';
 import { openExportModal, cancelExport, startExport } from './export.js';
 import { buildGlyphAtlas } from './renderer.js';
 import { convertGifToWebm } from './gif-converter.js';
+import type { PreparedTextWithSegments } from '@chenglou/pretext';
 
 const PLAY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
 const PAUSE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 
 function initInactivityTimer() {
-  let timeout;
+  let timeout: any;
   const hideControls = () => {
     document.body.classList.add('user-inactive');
   };
@@ -27,7 +28,7 @@ function initInactivityTimer() {
   resetTimer();
 }
 
-export function bindAllControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback) {
+export function bindAllControls(videoElement: HTMLVideoElement, renderFrameCallback: () => void, refreshTextCallback: () => void) {
   bindArtStyleControl(refreshTextCallback);
   bindTypographyControls(refreshTextCallback);
   bindBoldItalicToggles();
@@ -36,25 +37,25 @@ export function bindAllControls(videoElement, renderFrameCallback, resizeCallbac
   bindAsciiRampControl(refreshTextCallback);
   bindSliderFillTracking();
   bindCustomDropdowns();
-  bindPlayerControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback);
+  bindPlayerControls(videoElement, renderFrameCallback, refreshTextCallback);
   bindExportControls(videoElement);
-  bindTextEditor(videoElement, refreshTextCallback);
+  bindTextEditor(refreshTextCallback);
   bindSidebarToggle();
   initInactivityTimer();
 }
 
-function bindTypographyControls(refreshTextCallback) {
+function bindTypographyControls(refreshTextCallback: () => void) {
   ['fontFamily', 'textColor', 'fontSize', 'lineHeight', 'fontWeight'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => applyTextStyles(refreshTextCallback));
   });
 }
 
-function applyTextStyles(refreshTextCallback) {
-  const color = document.getElementById('textColor').value;
-  const size = document.getElementById('fontSize').value;
-  const family = document.getElementById('fontFamily').value;
-  const weight = document.getElementById('fontWeight').value;
+function applyTextStyles(refreshTextCallback: () => void) {
+  const color = (document.getElementById('textColor') as HTMLInputElement).value;
+  const size = (document.getElementById('fontSize') as HTMLInputElement).value;
+  const family = (document.getElementById('fontFamily') as HTMLInputElement).value;
+  const weight = (document.getElementById('fontWeight') as HTMLInputElement).value;
   const isItalic = document.getElementById('toggleItalic')?.classList.contains('active');
 
   const boldBtn = document.getElementById('toggleBold');
@@ -71,14 +72,14 @@ function applyTextStyles(refreshTextCallback) {
     overlay.style.fontStyle = isItalic ? "italic" : "normal";
   }
 
-  document.getElementById('valSize').textContent = size;
-  document.getElementById('valLineHeight').textContent = document.getElementById('lineHeight').value;
+  document.getElementById('valSize')!.textContent = size;
+  document.getElementById('valLineHeight')!.textContent = (document.getElementById('lineHeight') as HTMLInputElement).value;
 
   state.currentFontSpec = `${isItalic ? "italic" : "normal"} ${weight} ${size}px ${family}`;
-  state.currentLineHeight = parseInt(document.getElementById('lineHeight').value);
+  state.currentLineHeight = parseInt((document.getElementById('lineHeight') as HTMLInputElement).value);
 
   if (state.storyText) {
-    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
+    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec) as PreparedTextWithSegments;
   }
 
   state.needsRedraw = true;
@@ -88,19 +89,19 @@ function applyTextStyles(refreshTextCallback) {
 function bindBoldItalicToggles() {
   const boldBtn = document.getElementById('toggleBold');
   const italicBtn = document.getElementById('toggleItalic');
-  const weightInput = document.getElementById('fontWeight');
+  const weightInput = document.getElementById('fontWeight') as HTMLInputElement;
 
   if (boldBtn) {
     boldBtn.addEventListener('click', () => {
       boldBtn.classList.toggle('active');
       weightInput.value = boldBtn.classList.contains('active') ? "700" : "400";
 
-      const headerText = weightInput.parentElement.querySelector('span');
-      const items = weightInput.parentElement.querySelectorAll('li');
+      const headerText = weightInput.parentElement!.querySelector('span');
+      const items = weightInput.parentElement!.querySelectorAll('li');
       items.forEach(li => li.classList.remove('selected'));
 
       const matchingItem = Array.from(items).find(li => li.dataset.value === weightInput.value);
-      if (matchingItem) {
+      if (matchingItem && headerText) {
         matchingItem.classList.add('selected');
         headerText.textContent = matchingItem.textContent;
       }
@@ -118,26 +119,26 @@ function bindBoldItalicToggles() {
   }
 }
 
-function bindFileUpload(videoElement) {
+function bindFileUpload(videoElement: HTMLVideoElement) {
   const uploadZone = document.getElementById('uploadZone');
-  const fileInput = document.getElementById('fileInput');
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
 
-  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone!.addEventListener('click', () => fileInput.click());
 
-  fileInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
+  fileInput.addEventListener('change', async (e: any) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     // Update UI
-    document.getElementById('uploadBtnText').textContent = 'Processing...';
-    document.getElementById('mediaFileName').textContent = file.name;
-    document.getElementById('mediaPreview').style.display = 'flex';
+    document.getElementById('uploadBtnText')!.textContent = 'Processing...';
+    document.getElementById('mediaFileName')!.textContent = file.name;
+    document.getElementById('mediaPreview')!.style.display = 'flex';
 
     let url;
     try {
       if (file.type === "image/gif") {
         url = await convertGifToWebm(file, (msg) => {
-          document.getElementById('uploadBtnText').textContent = msg;
+          document.getElementById('uploadBtnText')!.textContent = msg;
         });
       } else {
         url = URL.createObjectURL(file);
@@ -147,14 +148,14 @@ function bindFileUpload(videoElement) {
       url = URL.createObjectURL(file);
     }
 
-    document.getElementById('uploadBtnText').textContent = 'Change Media';
+    document.getElementById('uploadBtnText')!.textContent = 'Change Media';
     videoElement.src = url;
     state.originalFilename = file.name;
     
     // Generate Thumbnail
     videoElement.addEventListener('loadeddata', () => {
-      const thumbCanvas = document.getElementById('thumbCanvas');
-      const ctx = thumbCanvas.getContext('2d');
+      const thumbCanvas = document.getElementById('thumbCanvas') as HTMLCanvasElement;
+      const ctx = thumbCanvas.getContext('2d')!;
       ctx.drawImage(videoElement, 0, 0, thumbCanvas.width, thumbCanvas.height);
     }, { once: true });
 
@@ -162,18 +163,18 @@ function bindFileUpload(videoElement) {
     setTimeout(() => {
       videoElement.pause();
       state.isPlaying = false;
-      document.getElementById('btnPlayPause').innerHTML = PLAY_ICON;
+      document.getElementById('btnPlayPause')!.innerHTML = PLAY_ICON;
     }, 100);
   });
 }
 
-function bindAsciiScaleSlider(refreshTextCallback) {
-  const slider = document.getElementById('asciiScale');
+function bindAsciiScaleSlider(refreshTextCallback: () => void) {
+  const slider = document.getElementById('asciiScale') as HTMLInputElement;
   const display = document.getElementById('asciiScaleVal');
 
-  slider.addEventListener('input', (e) => {
+  slider.addEventListener('input', (e: any) => {
     const scale = parseInt(e.target.value);
-    display.textContent = scale;
+    display!.textContent = String(scale);
 
     state.cellDimensions = { charW: Math.floor(scale * 0.5), charH: scale };
     updateSliderFill(slider);
@@ -183,11 +184,11 @@ function bindAsciiScaleSlider(refreshTextCallback) {
   });
 }
 
-function bindAsciiRampControl(refreshTextCallback) {
-  const input = document.getElementById('asciiRamp');
+function bindAsciiRampControl(refreshTextCallback: () => void) {
+  const input = document.getElementById('asciiRamp') as HTMLInputElement;
   if (!input) return;
 
-  input.addEventListener('input', (e) => {
+  input.addEventListener('input', (e: any) => {
     state.asciiRamp = e.target.value || " ";
     state.cellDimensions = buildGlyphAtlas();
     state.needsRedraw = true;
@@ -199,20 +200,20 @@ function bindAsciiRampControl(refreshTextCallback) {
 function bindSliderFillTracking() {
   document.querySelectorAll('input[type="range"]').forEach(el => {
     // Initial fill
-    updateSliderFill(el);
+    updateSliderFill(el as HTMLInputElement);
     // On-the-fly fill
-    el.addEventListener('input', () => updateSliderFill(el));
+    el.addEventListener('input', () => updateSliderFill(el as HTMLInputElement));
   });
 }
 
-function bindArtStyleControl(refreshTextCallback) {
-  const artStyleInput = document.getElementById('artStyle');
+function bindArtStyleControl(refreshTextCallback: () => void) {
+  const artStyleInput = document.getElementById('artStyle') as HTMLInputElement;
   const asciiSection = document.getElementById('asciiSettingsSection');
   
   if (!artStyleInput || !asciiSection) return;
 
-  const updateVisibility = (val) => {
-    state.artStyle = val;
+  const updateVisibility = (val: string) => {
+    state.artStyle = val as "original" | "grayscale" | "ascii";
     
     const textmodeCanvas = document.getElementById('textmodeCanvas');
     if (textmodeCanvas) {
@@ -229,32 +230,24 @@ function bindArtStyleControl(refreshTextCallback) {
     if (refreshTextCallback) refreshTextCallback();
   };
 
-  artStyleInput.addEventListener('input', (e) => updateVisibility(e.target.value));
+  artStyleInput.addEventListener('input', (e: any) => updateVisibility(e.target.value));
   
   // Initial run
   updateVisibility(artStyleInput.value);
 }
 
-function clearDisplayCanvas() {
-  const canvas = document.getElementById('canvasDisplay');
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-}
-
-function updateSliderFill(slider) {
+function updateSliderFill(slider: HTMLInputElement) {
   const min = parseFloat(slider.min);
   const max = parseFloat(slider.max);
-  const percent = ((slider.value - min) / (max - min)) * 100;
+  const percent = ((parseFloat(slider.value) - min) / (max - min)) * 100;
   slider.style.setProperty('--val', percent + '%');
 }
 
 function bindCustomDropdowns() {
   document.querySelectorAll('.dropdown').forEach(dropdown => {
-    const header = dropdown.querySelector('.dropdown-header');
+    const header = dropdown.querySelector('.dropdown-header') as HTMLElement;
     const headerText = header.querySelector('span');
-    const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+    const hiddenInput = dropdown.querySelector('input[type="hidden"]') as HTMLInputElement;
 
     header.addEventListener('click', (e) => {
       document.querySelectorAll('.dropdown').forEach(d => {
@@ -266,9 +259,11 @@ function bindCustomDropdowns() {
 
     dropdown.querySelectorAll('li').forEach(item => {
       item.addEventListener('click', (e) => {
-        headerText.textContent = item.textContent;
-        headerText.style.fontFamily = item.style.fontFamily;
-        hiddenInput.value = item.dataset.value;
+        if (headerText) {
+          headerText.textContent = item.textContent;
+          headerText.style.fontFamily = item.style.fontFamily;
+        }
+        hiddenInput.value = item.dataset.value || "";
         dropdown.classList.remove('open');
         dropdown.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
         item.classList.add('selected');
@@ -283,87 +278,95 @@ function bindCustomDropdowns() {
   });
 }
 
-function bindPlayerControls(videoElement, renderFrameCallback, resizeCallback, refreshTextCallback) {
+function bindPlayerControls(videoElement: HTMLVideoElement, renderFrameCallback: () => void, refreshTextCallback: () => void) {
   const playPauseBtn = document.getElementById('btnPlayPause');
-  const seekSlider = document.getElementById('seekSlider');
+  const seekSlider = document.getElementById('seekSlider') as HTMLInputElement;
   const timeDisplay = document.getElementById('timeDisplay');
   const fullscreenBtn = document.getElementById('btnFullscreen');
 
-  playPauseBtn.addEventListener('click', () => {
-    if (!state.isRendering) {
-      state.isRendering = true;
-      videoElement.play();
-      videoElement.requestVideoFrameCallback(renderFrameCallback);
-      playPauseBtn.innerHTML = PAUSE_ICON;
-      state.isPlaying = true;
-    } else if (state.isPlaying) {
-      videoElement.pause();
-      state.isPlaying = false;
-      state.isRendering = false;
-      playPauseBtn.innerHTML = PLAY_ICON;
-    } else {
-      videoElement.play();
-      state.isPlaying = true;
-      state.isRendering = true;
-      videoElement.requestVideoFrameCallback(renderFrameCallback);
-      playPauseBtn.innerHTML = PAUSE_ICON;
-    }
-  });
+  if (playPauseBtn) {
+    playPauseBtn.addEventListener('click', () => {
+      if (!state.isRendering) {
+        state.isRendering = true;
+        videoElement.play();
+        videoElement.requestVideoFrameCallback(renderFrameCallback);
+        playPauseBtn.innerHTML = PAUSE_ICON;
+        state.isPlaying = true;
+      } else if (state.isPlaying) {
+        videoElement.pause();
+        state.isPlaying = false;
+        state.isRendering = false;
+        playPauseBtn.innerHTML = PLAY_ICON;
+      } else {
+        videoElement.play();
+        state.isPlaying = true;
+        state.isRendering = true;
+        videoElement.requestVideoFrameCallback(renderFrameCallback);
+        playPauseBtn.innerHTML = PAUSE_ICON;
+      }
+    });
+  }
 
   videoElement.addEventListener('timeupdate', () => {
-    if (!videoElement.duration || document.activeElement === seekSlider) return;
+    if (!videoElement.duration || document.activeElement === seekSlider || !seekSlider || !timeDisplay) return;
     const percent = (videoElement.currentTime / videoElement.duration) * 100;
-    seekSlider.value = percent;
+    seekSlider.value = String(percent);
     seekSlider.style.setProperty('--seek-val', percent + '%');
     timeDisplay.textContent = formatTime(videoElement.currentTime) + " / " + formatTime(videoElement.duration);
   });
 
-  seekSlider.addEventListener('input', (e) => {
-    if (!videoElement.duration) return;
-    videoElement.currentTime = (e.target.value / 100) * videoElement.duration;
-    seekSlider.style.setProperty('--seek-val', e.target.value + '%');
-    timeDisplay.textContent = formatTime(videoElement.currentTime) + " / " + formatTime(videoElement.duration);
-    if (!state.isPlaying) {
-      videoElement.requestVideoFrameCallback(() => {
-        state.needsRedraw = true;
-        if (refreshTextCallback) refreshTextCallback();
-      });
-    }
-  });
+  if (seekSlider && timeDisplay) {
+    seekSlider.addEventListener('input', (e: any) => {
+      if (!videoElement.duration) return;
+      videoElement.currentTime = (e.target.value / 100) * videoElement.duration;
+      seekSlider.style.setProperty('--seek-val', e.target.value + '%');
+      timeDisplay.textContent = formatTime(videoElement.currentTime) + " / " + formatTime(videoElement.duration);
+      if (!state.isPlaying) {
+        videoElement.requestVideoFrameCallback(() => {
+          state.needsRedraw = true;
+          if (refreshTextCallback) refreshTextCallback();
+        });
+      }
+    });
+  }
 
   if (fullscreenBtn) {
     fullscreenBtn.addEventListener('click', () => {
-      const container = document.getElementById('videoContainer');
+      const container: any = document.getElementById('videoContainer');
+      const doc: any = document;
       if (!document.fullscreenElement) {
-        container.requestFullscreen?.() || container.webkitRequestFullscreen?.();
+        container?.requestFullscreen?.() || container?.webkitRequestFullscreen?.();
       } else {
-        document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+        doc.exitFullscreen?.() || doc.webkitExitFullscreen?.();
       }
     });
   }
 }
 
-function bindExportControls(videoElement) {
+function bindExportControls(videoElement: HTMLVideoElement) {
   const exportBtn = document.getElementById('btnExport');
   const startBtn = document.getElementById('btnStartExport');
   const cancelBtn = document.getElementById('btnCancelExport');
 
-  exportBtn.addEventListener('click', () => {
-    if (state.isPlaying) document.getElementById('btnPlayPause').click();
-    openExportModal();
-  });
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      if (state.isPlaying) document.getElementById('btnPlayPause')!.click();
+      openExportModal();
+    });
+  }
 
-  cancelBtn.addEventListener('click', cancelExport);
-  startBtn.addEventListener('click', () => startExport(videoElement));
+  if (cancelBtn) cancelBtn.addEventListener('click', cancelExport);
+  if (startBtn) startBtn.addEventListener('click', () => startExport(videoElement));
 }
 
-function bindTextEditor(videoElement, refreshTextCallback) {
-  const editor = document.getElementById('textEditor');
+function bindTextEditor(refreshTextCallback: () => void) {
+  const editor = document.getElementById('textEditor') as HTMLInputElement;
+  if (!editor) return;
 
-  editor.addEventListener('input', (e) => {
+  editor.addEventListener('input', (e: any) => {
     state.storyText = e.target.value;
     if (state.storyText) {
-      state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec);
+      state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec) as PreparedTextWithSegments;
     }
 
     if (refreshTextCallback) refreshTextCallback();
@@ -377,7 +380,7 @@ function bindSidebarToggle() {
 
   if (!btnClose || !btnOpen || !sidebar) return;
 
-  const toggle = (isOpen) => {
+  const toggle = (isOpen: boolean) => {
     state.sidebarOpen = isOpen;
     sidebar.classList.toggle('sidebar-closed', !isOpen);
     
@@ -392,17 +395,17 @@ function bindSidebarToggle() {
   btnOpen.addEventListener('click', () => toggle(true));
 }
 
-function formatTime(seconds) {
+function formatTime(seconds: number) {
   if (isNaN(seconds)) return "0:00";
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-export function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
+export function hexToRgb(hex: string) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
   return [r, g, b];
 }
 

@@ -1,13 +1,14 @@
 import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 
-export async function convertGifToWebm(file, progressCallback) {
-  if (!window.ImageDecoder || !window.VideoEncoder) {
+export async function convertGifToWebm(file: File, progressCallback: (msg: string) => void): Promise<string> {
+  const globalAny = window as any;
+  if (!globalAny.ImageDecoder || !window.VideoEncoder) {
     // Fallback: unsupported browser (Safari/Firefox). Just hope it plays in <video>.
     return URL.createObjectURL(file);
   }
 
   const arrayBuffer = await file.arrayBuffer();
-  const decoder = new ImageDecoder({ type: 'image/gif', data: arrayBuffer });
+  const decoder = new globalAny.ImageDecoder({ type: 'image/gif', data: arrayBuffer });
   
   await decoder.tracks.ready;
   if (!decoder.tracks.selectedTrack) {
@@ -29,7 +30,7 @@ export async function convertGifToWebm(file, progressCallback) {
   });
 
   const videoEncoder = new VideoEncoder({
-    output: (chunk, metadata) => muxer.addVideoChunk(chunk, metadata),
+    output: (chunk, metadata) => muxer.addVideoChunk(chunk, metadata as any),
     error: (e) => console.error("GIF Encoder Error:", e)
   });
 
@@ -50,7 +51,7 @@ export async function convertGifToWebm(file, progressCallback) {
       // duration in ms. Multiply by 1000 for microseconds
       const durationUs = (result.image.duration !== null && result.image.duration > 0) ? result.image.duration : 100000;
       
-      const frame = new VideoFrame(result.image, { timestamp, duration: durationUs });
+      const frame = new VideoFrame(result.image as any, { timestamp, duration: durationUs });
       videoEncoder.encode(frame);
       frame.close();
       

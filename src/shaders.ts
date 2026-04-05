@@ -1,4 +1,4 @@
-const glsl = (s, ...v) => s.map((sh, i) => sh + (v[i] || '')).join('');
+const glsl = (s: TemplateStringsArray, ...v: any[]) => s.reduce((sh, p, i) => sh + p + (v[i] || ''), '');
 
 export const VERTEX_SHADER_SOURCE = glsl`
 attribute vec2 a_pos;

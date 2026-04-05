@@ -1,10 +1,10 @@
 import { prepareWithSegments, layoutNextLine as layout } from '@chenglou/pretext';
 import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 import { state } from './state.js';
-import { gl, asciiCanvas, videoTexture, uniforms, renderStyleFrame } from './renderer.js';
+import { gl, asciiCanvas, renderStyleFrame } from './renderer.js';
 import { detectSilhouette } from './silhouette.js';
-import { resizeCanvases } from './renderer.js';
 import { hexToRgb } from './ui.js';
+import type { PreparedTextWithSegments } from '@chenglou/pretext';
 
 const MARGIN = 24;
 const SILHOUETTE_PADDING = 6;
@@ -12,22 +12,22 @@ const MIN_TEXT_REGION_WIDTH = 40;
 
 let isExporting = false;
 let exportStartTime = 0;
-let exportTimerInterval = null;
-let muxer = null;
-let videoEncoder = null;
-let audioEncoder = null;
-let offlineVideo = null;
+let exportTimerInterval: ReturnType<typeof setInterval> | null = null;
+let muxer: Muxer<ArrayBufferTarget> | null = null;
+let videoEncoder: any = null; // using any since TS might not trace dom-webcodecs
+let audioEncoder: any = null; 
+let offlineVideo: HTMLVideoElement | null = null;
 
-const exportModal = document.getElementById('exportModal');
-const cancelConfirmModal = document.getElementById('cancelConfirmModal');
-const btnStartExport = document.getElementById('btnStartExport');
-const btnCancelExport = document.getElementById('btnCancelExport');
-const btnCancelYes = document.getElementById('btnCancelYes');
-const btnCancelNo = document.getElementById('btnCancelNo');
-const progressContainer = document.getElementById('exportProgressUi');
-const progressBar = document.getElementById('exportProgressBar');
-const statusText = document.getElementById('exportStatusText');
-const timerDisplay = document.getElementById('exportTimer');
+const exportModal = document.getElementById('exportModal') as HTMLDialogElement;
+const cancelConfirmModal = document.getElementById('cancelConfirmModal') as HTMLDialogElement;
+const btnStartExport = document.getElementById('btnStartExport') as HTMLButtonElement;
+const btnCancelExport = document.getElementById('btnCancelExport') as HTMLButtonElement;
+const btnCancelYes = document.getElementById('btnCancelYes') as HTMLButtonElement;
+const btnCancelNo = document.getElementById('btnCancelNo') as HTMLButtonElement;
+const progressContainer = document.getElementById('exportProgressUi') as HTMLElement;
+const progressBar = document.getElementById('exportProgressBar') as HTMLElement;
+const statusText = document.getElementById('exportStatusText') as HTMLElement;
+const timerDisplay = document.getElementById('exportTimer') as HTMLElement;
 
 export function openExportModal() {
   if (isExporting) return;
@@ -80,7 +80,7 @@ function stopExportExecution() {
   btnCancelExport.disabled = false;
 }
 
-export async function startExport(videoElement) {
+export async function startExport(videoElement: HTMLVideoElement) {
   if (isExporting) return;
   isExporting = true;
 
@@ -92,10 +92,10 @@ export async function startExport(videoElement) {
   exportStartTime = performance.now();
   exportTimerInterval = setInterval(updateExportTimer, 1000);
 
-  const targetHeight = parseInt(document.getElementById('exportRes').value);
+  const targetHeight = parseInt((document.getElementById('exportRes') as HTMLInputElement).value);
   const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
   const targetWidth = Math.round(targetHeight * aspectRatio);
-  const includeAudio = document.getElementById('exportAudio').checked;
+  const includeAudio = (document.getElementById('exportAudio') as HTMLInputElement).checked;
 
   offlineVideo = document.createElement("video");
   offlineVideo.crossOrigin = "anonymous";
@@ -108,12 +108,14 @@ export async function startExport(videoElement) {
   offlineVideo.style.height = "1px";
   document.body.appendChild(offlineVideo);
 
-  await new Promise(resolve => {
-    offlineVideo.onloadeddata = resolve;
+  await new Promise<void>(resolve => {
+    if (!offlineVideo) return resolve();
+    offlineVideo.onloadeddata = () => resolve();
     if (offlineVideo.readyState >= 2) resolve();
   });
 
-  const savedWidth = asciiCanvas.width;
+  if (!offlineVideo) return; // fail safe
+
   const savedHeight = asciiCanvas.height;
   asciiCanvas.width = targetWidth;
   asciiCanvas.height = targetHeight;
@@ -123,18 +125,21 @@ export async function startExport(videoElement) {
   renderCanvas.width = targetWidth;
   renderCanvas.height = targetHeight;
   const renderCtx = renderCanvas.getContext("2d", { willReadFrequently: true });
+  if (!renderCtx) throw new Error("Could not create 2d export context");
   
   const bitrate = targetHeight >= 1080 ? 50000000 : (targetHeight >= 720 ? 25000000 : 10000000);
 
-  let audioBuffer = null;
+  let audioBuffer: AudioBuffer | null = null;
   if (includeAudio) {
     try {
       statusText.textContent = "Extracting audio track...";
       const response = await fetch(videoElement.src);
       const arrayBuffer = await response.arrayBuffer();
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // @ts-expect-error fallback
+      const AudioCtxConstructor = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioCtxConstructor();
       
-      audioBuffer = await new Promise((resolve, reject) => {
+      audioBuffer = await new Promise<AudioBuffer>((resolve, reject) => {
         const decodePromise = audioCtx.decodeAudioData(arrayBuffer, resolve, reject);
         if (decodePromise) {
           decodePromise.catch(reject);
@@ -160,9 +165,9 @@ export async function startExport(videoElement) {
     firstTimestampBehavior: 'offset'
   });
 
-  videoEncoder = new VideoEncoder({
-    output: (chunk, metadata) => muxer.addVideoChunk(chunk, metadata),
-    error: (e) => console.error("VideoEncoder error:", e)
+  videoEncoder = new window.VideoEncoder({
+    output: (chunk: any, metadata: any) => muxer!.addVideoChunk(chunk, metadata as any),
+    error: (e: any) => console.error("VideoEncoder error:", e)
   });
 
   videoEncoder.configure({
@@ -173,9 +178,9 @@ export async function startExport(videoElement) {
   });
 
   if (audioBuffer) {
-    audioEncoder = new AudioEncoder({
-      output: (chunk, metadata) => muxer.addAudioChunk(chunk, metadata),
-      error: (e) => console.error("AudioEncoder error:", e)
+    audioEncoder = new (window as any).AudioEncoder({
+      output: (chunk: any, metadata: any) => muxer!.addAudioChunk(chunk, metadata as any),
+      error: (e: any) => console.error("AudioEncoder error:", e)
     });
 
     audioEncoder.configure({
@@ -189,28 +194,29 @@ export async function startExport(videoElement) {
   const fontScale = targetHeight / (savedHeight / (window.devicePixelRatio || 1));
   const scaledLineHeight = (state.currentLineHeight) * fontScale;
   const scaledFont = state.currentFontSpec.replace(/(\d+)px/, (_, size) => `${parseFloat(size) * fontScale}px`);
-  const fontColor = document.getElementById('textColor')?.value || "#d4d0c8";
+  const fontColor = (document.getElementById('textColor') as HTMLInputElement)?.value || "#d4d0c8";
 
-  const exportLayout = prepareWithSegments(state.storyText, scaledFont);
+  const exportLayout = prepareWithSegments(state.storyText, scaledFont) as PreparedTextWithSegments;
   const { charW, charH } = state.cellDimensions;
 
   let currentFrame = 0;
   const totalFrames = Math.floor(offlineVideo.duration * 30);
 
-  async function burnFrame(now, metadata) {
-    if (!isExporting) return;
+  // eslint-disable-next-line no-inner-declarations
+  async function burnFrame(_now: number, _metadata: any) {
+    if (!isExporting || !offlineVideo) return;
 
     const textCursor = { segmentIndex: 0, graphemeIndex: 0 };
-    renderCtx.clearRect(0, 0, targetWidth, targetHeight);
+    renderCtx!.clearRect(0, 0, targetWidth, targetHeight);
 
     const gridRows = Math.ceil(targetHeight / (charH * fontScale));
     const gridCols = Math.ceil(targetWidth / (charW * fontScale));
 
-    const rgb = hexToRgb(fontColor);
+    const rgb = hexToRgb(fontColor) as [number, number, number];
 
     renderStyleFrame({
       gl,
-      ctx: renderCtx,
+      ctx: renderCtx!,
       videoSource: offlineVideo,
       viewportWidth: targetWidth,
       viewportHeight: targetHeight,
@@ -222,28 +228,28 @@ export async function startExport(videoElement) {
       asciiRGB: [rgb[0]/255, rgb[1]/255, rgb[2]/255]
     });
 
-    renderCtx.drawImage(asciiCanvas, 0, 0);
+    renderCtx!.drawImage(asciiCanvas, 0, 0);
 
     const silhouette = detectSilhouette(targetWidth, targetHeight, charW * fontScale, charH * fontScale, offlineVideo);
 
     // Use a stable frame-based timestamp starting at zero for maximum player compatibility
     const timestamp = currentFrame * (1000000 / 30);
-    renderCtx.textBaseline = "top";
-    renderCtx.font = scaledFont;
-    renderCtx.fillStyle = fontColor;
-    renderCtx.shadowColor = "rgba(0,0,0,0.8)";
-    renderCtx.shadowBlur = 4;
+    renderCtx!.textBaseline = "top";
+    renderCtx!.font = scaledFont;
+    renderCtx!.fillStyle = fontColor;
+    renderCtx!.shadowColor = "rgba(0,0,0,0.8)";
+    renderCtx!.shadowBlur = 4;
 
     let yPosition = scaledLineHeight;
     while (yPosition + scaledLineHeight <= targetHeight) {
-      const topRow = Math.max(0, yPosition / silhouette.charH | 0);
+      const topRow = Math.max(0, Math.floor(yPosition / silhouette.charH));
       const bottomRow = Math.min(silhouette.rows - 1, Math.ceil((yPosition + scaledLineHeight) / silhouette.charH));
       let narrowestLeft = 32767;
       let widestRight = -1;
 
       for (let row = topRow; row <= bottomRow; row++) {
-        const left = silhouette.leftEdges[row];
-        const right = silhouette.rightEdges[row];
+        const left = silhouette.leftEdges ? silhouette.leftEdges[row] : -1;
+        const right = silhouette.rightEdges ? silhouette.rightEdges[row] : -1;
         if (left !== -1) {
           if (left < narrowestLeft) narrowestLeft = left;
           if (right > widestRight) widestRight = right;
@@ -271,10 +277,10 @@ export async function startExport(videoElement) {
         const regionWidth = region.right - region.left;
         if (regionWidth < (MIN_TEXT_REGION_WIDTH * fontScale)) continue;
 
-        const segment = layout(exportLayout, textCursor, regionWidth);
+        const segment = layout(exportLayout as any, textCursor, regionWidth);
         if (!segment) break;
 
-        renderCtx.fillText(segment.text, region.left, yPosition);
+        renderCtx!.fillText(segment.text, region.left, yPosition);
         textCursor.segmentIndex = segment.end.segmentIndex;
         textCursor.graphemeIndex = segment.end.graphemeIndex;
       }
@@ -283,7 +289,7 @@ export async function startExport(videoElement) {
     }
 
     // Use passed timestamp from WebCodecs
-    const frame = new VideoFrame(renderCanvas, { timestamp });
+    const frame = new window.VideoFrame(renderCanvas, { timestamp });
     videoEncoder.encode(frame);
     frame.close();
     
@@ -311,7 +317,7 @@ export async function startExport(videoElement) {
             }
           }
 
-          audioEncoder.encode(new AudioData({
+          audioEncoder.encode(new (window as any).AudioData({
             format: 'f32',
             sampleRate: audioBuffer.sampleRate,
             numberOfFrames: frameCount,
@@ -326,9 +332,9 @@ export async function startExport(videoElement) {
       if (!isExporting) return; // Final cancel check
 
       await videoEncoder.flush();
-      muxer.finalize();
+      muxer!.finalize();
       
-      const { buffer } = muxer.target;
+      const { buffer } = muxer!.target as ArrayBufferTarget;
       const originalBase = state.originalFilename.substring(0, state.originalFilename.lastIndexOf('.')) || state.originalFilename;
       const exportFilename = `${originalBase}_${state.artStyle}_${targetHeight}p.webm`;
 

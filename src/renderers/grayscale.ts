@@ -1,5 +1,7 @@
-export const GrayscaleRenderer = {
-  render(params) {
+import type { RendererParams, StyleRenderer } from '../types.js';
+
+export const GrayscaleRenderer: StyleRenderer = {
+  render(params: RendererParams) {
     const { gl, videoSource, viewportWidth, viewportHeight, gridCols, gridRows, charW, charH, silhouetteOffsetX, videoTexture, uniforms } = params;
 
     gl.clearColor(0, 0, 0, 0);

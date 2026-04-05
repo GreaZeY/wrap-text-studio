@@ -1,6 +1,8 @@
-export const AsciiRenderer = {
-  render(params) {
-    const { gl, videoSource, viewportWidth, viewportHeight, gridCols, gridRows, charW, charH, silhouetteOffsetX, asciiRGB, videoTexture, uniforms, asciiRampLength } = params;
+import type { RendererParams, StyleRenderer } from '../types.js';
+
+export const OriginalRenderer: StyleRenderer = {
+  render(params: RendererParams) {
+    const { gl, videoSource, viewportWidth, viewportHeight, gridCols, gridRows, charW, charH, silhouetteOffsetX, videoTexture, uniforms } = params;
 
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -13,12 +15,7 @@ export const AsciiRenderer = {
     gl.uniform2f(uniforms.cellSize, charW, charH);
     gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
     gl.uniform2f(uniforms.silOffset, silhouetteOffsetX, 0);
-    gl.uniform1f(uniforms.numChars, asciiRampLength);
-    gl.uniform1i(uniforms.styleId, 0);
-    
-    if (asciiRGB) {
-      gl.uniform3f(uniforms.asciiColor, asciiRGB[0], asciiRGB[1], asciiRGB[2]);
-    }
+    gl.uniform1i(uniforms.styleId, 1);
     
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
