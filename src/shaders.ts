@@ -126,10 +126,10 @@ void main() {
   float glyphA = texture2D(u_glyphs, vec2(atlasU, cellFrac.y)).a;
 
   vec3 contrastColor = pow(colorData, vec3(1.2)); 
-  vec3 tint = mix(u_asciiColor, contrastColor, 0.35) * (lum * 1.5 + 0.1);
-  vec3 finalColor = mix(u_bg, tint, glyphA * 1.1);
-  finalColor = mix(vec3(dot(finalColor, vec3(0.333))), finalColor, 1.3); 
-  finalColor *= 1.2; 
+  vec3 tint = mix(u_asciiColor, contrastColor, 0.45) * (lum * 2.8 + 0.2);
+  vec3 finalColor = mix(u_bg, tint, glyphA * 1.3);
+  finalColor = mix(vec3(dot(finalColor, vec3(0.333))), finalColor, 1.4); 
+  finalColor *= 3.5; 
   
   gl_FragColor = vec4(finalColor, 1.0);
 }`;

@@ -553,6 +553,21 @@ body {
   border-color: var(--accent-red);
 }
 
+.icon-btn.active {
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.icon-btn:not(.active) svg {
+  opacity: 0.5;
+}
+
+.icon-btn#btnMute svg,
+.icon-btn#btnPlayPause svg,
+.icon-btn#btnFullscreen svg {
+  opacity: 1;
+}
+
 /* ── Buttons ─────────────────────────────────────── */
 .re-btn {
   background: rgba(255, 255, 255, 0.05);
