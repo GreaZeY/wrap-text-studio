@@ -221,7 +221,7 @@ function bindArtStyleControl(refreshTextCallback: () => void) {
     }
 
     if (state.artStyle === 'ascii') {
-      asciiSection.style.display = 'block';
+      asciiSection.style.display = 'flex';
     } else {
       asciiSection.style.display = 'none';
     }
