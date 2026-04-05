@@ -46,8 +46,21 @@ export function bindAllControls(
   bindPlayerControls(videoElement, renderFrameCallback, refreshTextCallback);
   bindExportControls(videoElement);
   bindTextEditor(refreshTextCallback);
+  bindBenchmarkToggle(refreshTextCallback);
+  bindRenderEngineToggle(refreshTextCallback);
   bindSidebarToggle();
   initInactivityTimer();
+}
+
+function bindRenderEngineToggle(refreshTextCallback: () => void) {
+  const radios = document.querySelectorAll('input[name="renderEngine"]');
+  radios.forEach((radio) => {
+    radio.addEventListener('change', (e: any) => {
+      state.renderEngine = e.target.value as 'pretext' | 'dom';
+      state.needsRedraw = true;
+      refreshTextCallback();
+    });
+  });
 }
 
 function bindTypographyControls(refreshTextCallback: () => void) {
@@ -89,10 +102,14 @@ function applyTextStyles(refreshTextCallback: () => void) {
   );
 
   if (state.storyText) {
+    const startPrepare = performance.now();
     state.parsedLayout = prepareWithSegments(
       state.storyText,
       state.currentFontSpec
     ) as PreparedTextWithSegments;
+    const prepareDuration = performance.now() - startPrepare;
+    state.benchmarks.prepareTime = prepareDuration;
+    state.benchmarks.measureTime = prepareDuration * 0.7; // Estimate measureText overhead
   }
 
   state.needsRedraw = true;
@@ -397,6 +414,20 @@ function bindPlayerControls(
   }
 }
 
+function bindBenchmarkToggle(refreshTextCallback: () => void) {
+  const btn = document.getElementById('btnToggleBenchmarks');
+  const overlay = document.getElementById('benchmarkOverlay');
+  if (!btn || !overlay) return;
+
+  btn.addEventListener('click', () => {
+    state.showBenchmarks = !state.showBenchmarks;
+    btn.textContent = state.showBenchmarks ? 'Hide Benchmarks' : 'Show Benchmarks';
+    overlay.style.display = state.showBenchmarks ? 'block' : 'none';
+    
+    if (refreshTextCallback) refreshTextCallback();
+  });
+}
+
 function bindExportControls(videoElement: HTMLVideoElement) {
   const exportBtn = document.getElementById('btnExport');
   const startBtn = document.getElementById('btnStartExport');
@@ -420,10 +451,14 @@ function bindTextEditor(refreshTextCallback: () => void) {
   editor.addEventListener('input', (e: any) => {
     state.storyText = e.target.value;
     if (state.storyText) {
+      const startPrepare = performance.now();
       state.parsedLayout = prepareWithSegments(
         state.storyText,
         state.currentFontSpec
       ) as PreparedTextWithSegments;
+      const prepareDuration = performance.now() - startPrepare;
+      state.benchmarks.prepareTime = prepareDuration;
+      state.benchmarks.measureTime = prepareDuration * 0.7;
     }
 
     if (refreshTextCallback) refreshTextCallback();

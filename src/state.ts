@@ -19,4 +19,15 @@ export const state: AppState = {
   sidebarOpen: true,
   isMuted: false,
   isLooping: false,
+  showBenchmarks: false,
+  benchmarks: {
+    prepareTime: 0,
+    layoutTime: 0,
+    analysisTime: 0,
+    measureTime: 0,
+    reflows: 0,
+    fps: 0,
+    domLayoutTime: 0,
+  },
+  renderEngine: 'pretext',
 };

@@ -34,6 +34,17 @@ export interface AppState {
   sidebarOpen: boolean;
   isMuted: boolean;
   isLooping: boolean;
+  showBenchmarks: boolean;
+  benchmarks: {
+    prepareTime: number;
+    layoutTime: number;
+    analysisTime: number;
+    measureTime: number;
+    reflows: number;
+    fps: number;
+    domLayoutTime: number;
+  };
+  renderEngine: 'pretext' | 'dom';
 }
 
 export interface RendererParams {
