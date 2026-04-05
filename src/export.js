@@ -16,6 +16,7 @@ let exportTimerInterval = null;
 let muxer = null;
 let videoEncoder = null;
 let audioEncoder = null;
+let offlineVideo = null;
 
 const exportModal = document.getElementById('exportModal');
 const cancelConfirmModal = document.getElementById('cancelConfirmModal');
@@ -69,6 +70,12 @@ function stopExportExecution() {
   videoEncoder = null;
   audioEncoder = null;
   muxer = null;
+  if (offlineVideo) {
+    if (offlineVideo.parentNode) offlineVideo.parentNode.removeChild(offlineVideo);
+    offlineVideo.onloadeddata = null;
+    offlineVideo.src = "";
+    offlineVideo = null;
+  }
   btnStartExport.disabled = false;
   btnCancelExport.disabled = false;
 }
@@ -90,11 +97,16 @@ export async function startExport(videoElement) {
   const targetWidth = Math.round(targetHeight * aspectRatio);
   const includeAudio = document.getElementById('exportAudio').checked;
 
-  const offlineVideo = document.createElement("video");
+  offlineVideo = document.createElement("video");
   offlineVideo.crossOrigin = "anonymous";
   offlineVideo.src = videoElement.src;
   offlineVideo.muted = true;
   offlineVideo.playsInline = true;
+  offlineVideo.style.display = "none";
+  offlineVideo.style.position = "absolute";
+  offlineVideo.style.width = "1px";
+  offlineVideo.style.height = "1px";
+  document.body.appendChild(offlineVideo);
 
   await new Promise(resolve => {
     offlineVideo.onloadeddata = resolve;
@@ -121,7 +133,13 @@ export async function startExport(videoElement) {
       const response = await fetch(videoElement.src);
       const arrayBuffer = await response.arrayBuffer();
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      
+      audioBuffer = await new Promise((resolve, reject) => {
+        const decodePromise = audioCtx.decodeAudioData(arrayBuffer, resolve, reject);
+        if (decodePromise) {
+          decodePromise.catch(reject);
+        }
+      });
     } catch (e) {
       console.warn("Audio extraction failed, exporting without audio:", e);
     }
@@ -204,9 +222,7 @@ export async function startExport(videoElement) {
       asciiRGB: [rgb[0]/255, rgb[1]/255, rgb[2]/255]
     });
 
-    if (state.artStyle === 'ascii') {
-       renderCtx.drawImage(asciiCanvas, 0, 0);
-    }
+    renderCtx.drawImage(asciiCanvas, 0, 0);
 
     const silhouette = detectSilhouette(targetWidth, targetHeight, charW * fontScale, charH * fontScale, offlineVideo);
 

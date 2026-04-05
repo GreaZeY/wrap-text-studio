@@ -2,6 +2,7 @@ import { prepareWithSegments } from '@chenglou/pretext';
 import { state } from './state.js';
 import { openExportModal, cancelExport, startExport } from './export.js';
 import { buildGlyphAtlas } from './renderer.js';
+import { convertGifToWebm } from './gif-converter.js';
 
 const PLAY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
 const PAUSE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
@@ -123,16 +124,30 @@ function bindFileUpload(videoElement) {
 
   uploadZone.addEventListener('click', () => fileInput.click());
 
-  fileInput.addEventListener('change', (e) => {
+  fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     // Update UI
-    document.getElementById('uploadBtnText').textContent = 'Change Media';
+    document.getElementById('uploadBtnText').textContent = 'Processing...';
     document.getElementById('mediaFileName').textContent = file.name;
     document.getElementById('mediaPreview').style.display = 'flex';
 
-    const url = URL.createObjectURL(file);
+    let url;
+    try {
+      if (file.type === "image/gif") {
+        url = await convertGifToWebm(file, (msg) => {
+          document.getElementById('uploadBtnText').textContent = msg;
+        });
+      } else {
+        url = URL.createObjectURL(file);
+      }
+    } catch (err) {
+      console.warn("Failed to convert GIF, falling back to direct URL", err);
+      url = URL.createObjectURL(file);
+    }
+
+    document.getElementById('uploadBtnText').textContent = 'Change Media';
     videoElement.src = url;
     state.originalFilename = file.name;
     
@@ -199,6 +214,11 @@ function bindArtStyleControl(refreshTextCallback) {
   const updateVisibility = (val) => {
     state.artStyle = val;
     
+    const textmodeCanvas = document.getElementById('textmodeCanvas');
+    if (textmodeCanvas) {
+       textmodeCanvas.style.mixBlendMode = state.artStyle === 'ascii' ? 'screen' : 'normal';
+    }
+
     if (state.artStyle === 'ascii') {
       asciiSection.style.display = 'block';
     } else {

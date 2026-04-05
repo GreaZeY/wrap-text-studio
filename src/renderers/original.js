@@ -1,22 +1,20 @@
 export const OriginalRenderer = {
   render(params) {
-    const { gl, ctx, videoSource, viewportWidth, viewportHeight } = params;
+    const { gl, videoSource, viewportWidth, viewportHeight, gridCols, gridRows, charW, charH, silhouetteOffsetX, videoTexture, uniforms } = params;
 
-    if (gl) {
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-    }
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
-    if (ctx) {
-      const sourceW = videoSource.videoWidth || videoSource.width;
-      const sourceH = videoSource.videoHeight || videoSource.height;
-      const aspectRatio = sourceW / sourceH;
-
-      const scaledHeight = viewportHeight;
-      const scaledWidth = Math.round(scaledHeight * aspectRatio);
-      const x = Math.round((viewportWidth - scaledWidth) / 2);
-
-      ctx.drawImage(videoSource, x, 0, scaledWidth, scaledHeight);
-    }
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, videoSource);
+    
+    gl.uniform2f(uniforms.resolution, viewportWidth, viewportHeight);
+    gl.uniform2f(uniforms.cellSize, charW, charH);
+    gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
+    gl.uniform2f(uniforms.silOffset, silhouetteOffsetX, 0);
+    gl.uniform1i(uniforms.styleId, 1);
+    
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 };

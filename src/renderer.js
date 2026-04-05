@@ -47,6 +47,7 @@ const uniforms = {
   background: gl.getUniformLocation(program, "u_bg"),
   videoTex:   gl.getUniformLocation(program, "u_video"),
   glyphsTex:  gl.getUniformLocation(program, "u_glyphs"),
+  styleId:    gl.getUniformLocation(program, "u_styleId"),
 };
 
 const videoTexture = gl.createTexture();

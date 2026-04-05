@@ -14,6 +14,7 @@ export const AsciiRenderer = {
     gl.uniform2f(uniforms.gridSize, gridCols, gridRows);
     gl.uniform2f(uniforms.silOffset, silhouetteOffsetX, 0);
     gl.uniform1f(uniforms.numChars, asciiRampLength);
+    gl.uniform1i(uniforms.styleId, 0);
     
     if (asciiRGB) {
       gl.uniform3f(uniforms.asciiColor, asciiRGB[0], asciiRGB[1], asciiRGB[2]);
