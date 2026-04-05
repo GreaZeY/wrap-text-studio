@@ -1,4 +1,3 @@
-
 export const DEFAULT_VIDEO_SRC = 'wesker.mp4';
 
 export const DEFAULT_TEXT = `7 minutes, 7 minutes is all i can spare to play with you.

@@ -3,7 +3,7 @@ import type { AppState } from './types.js';
 
 export const state: AppState = {
   originalFilename: DEFAULT_VIDEO_SRC,
-  asciiRamp: "wesker",
+  asciiRamp: 'wesker',
   needsRedraw: true,
   isPlaying: false,
   isRendering: false,
@@ -15,6 +15,6 @@ export const state: AppState = {
   currentFontSpec: '16px "Poppins", sans-serif',
   currentLineHeight: 24,
   cellDimensions: { charW: 2, charH: 4 },
-  artStyle: "ascii",
+  artStyle: 'ascii',
   sidebarOpen: true,
 };

@@ -6,7 +6,12 @@ const MARGIN = 24;
 const SILHOUETTE_PADDING = 6;
 const MIN_TEXT_REGION_WIDTH = 40;
 
-export function placeTextAroundSilhouette(silhouette: SilhouetteData, silhouetteOffsetX: number, viewportWidth: number, viewportHeight: number) {
+export function placeTextAroundSilhouette(
+  silhouette: SilhouetteData,
+  silhouetteOffsetX: number,
+  viewportWidth: number,
+  viewportHeight: number
+) {
   const lineHeight = state.currentLineHeight;
   const textCursor = { segmentIndex: 0, graphemeIndex: 0 };
   let yPosition = lineHeight;
@@ -17,8 +22,11 @@ export function placeTextAroundSilhouette(silhouette: SilhouetteData, silhouette
   const fragment = document.createDocumentFragment();
 
   while (yPosition + lineHeight <= viewportHeight) {
-    const topRow = Math.max(0, yPosition / silhouette.charH | 0);
-    const bottomRow = Math.min(silhouette.rows - 1, Math.ceil((yPosition + lineHeight) / silhouette.charH));
+    const topRow = Math.max(0, (yPosition / silhouette.charH) | 0);
+    const bottomRow = Math.min(
+      silhouette.rows - 1,
+      Math.ceil((yPosition + lineHeight) / silhouette.charH)
+    );
     let narrowestLeft = 32767;
     let widestRight = -1;
 
@@ -31,7 +39,13 @@ export function placeTextAroundSilhouette(silhouette: SilhouetteData, silhouette
       }
     }
 
-    const regions = computeTextRegions(narrowestLeft, widestRight, silhouetteOffsetX, silhouette.charW, viewportWidth);
+    const regions = computeTextRegions(
+      narrowestLeft,
+      widestRight,
+      silhouetteOffsetX,
+      silhouette.charW,
+      viewportWidth
+    );
 
     for (const region of regions) {
       const regionWidth = region.right - region.left;
@@ -40,10 +54,10 @@ export function placeTextAroundSilhouette(silhouette: SilhouetteData, silhouette
       const segment = layoutNextLine(state.parsedLayout as any, textCursor, regionWidth);
       if (!segment) break;
 
-      const span = document.createElement("span");
+      const span = document.createElement('span');
       span.textContent = segment.text;
-      span.style.left = region.left + "px";
-      span.style.top = yPosition + "px";
+      span.style.left = region.left + 'px';
+      span.style.top = yPosition + 'px';
       fragment.appendChild(span);
 
       textCursor.segmentIndex = segment.end.segmentIndex;
@@ -54,12 +68,18 @@ export function placeTextAroundSilhouette(silhouette: SilhouetteData, silhouette
   }
 
   if (overlay) {
-    overlay.innerHTML = "";
+    overlay.innerHTML = '';
     overlay.appendChild(fragment);
   }
 }
 
-function computeTextRegions(narrowestLeft: number, widestRight: number, silhouetteOffsetX: number, charW: number, viewportWidth: number): Rect[] {
+function computeTextRegions(
+  narrowestLeft: number,
+  widestRight: number,
+  silhouetteOffsetX: number,
+  charW: number,
+  viewportWidth: number
+): Rect[] {
   const regions: Rect[] = [];
 
   if (widestRight === -1) {
@@ -80,4 +100,3 @@ function computeTextRegions(narrowestLeft: number, widestRight: number, silhouet
 
   return regions;
 }
-

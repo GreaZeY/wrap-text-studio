@@ -13,7 +13,7 @@ function initInactivityTimer() {
   const hideControls = () => {
     document.body.classList.add('user-inactive');
   };
-  
+
   const resetTimer = () => {
     document.body.classList.remove('user-inactive');
     clearTimeout(timeout);
@@ -24,11 +24,15 @@ function initInactivityTimer() {
   window.addEventListener('mousedown', resetTimer);
   window.addEventListener('keydown', resetTimer);
   window.addEventListener('touchstart', resetTimer);
-  
+
   resetTimer();
 }
 
-export function bindAllControls(videoElement: HTMLVideoElement, renderFrameCallback: () => void, refreshTextCallback: () => void) {
+export function bindAllControls(
+  videoElement: HTMLVideoElement,
+  renderFrameCallback: () => void,
+  refreshTextCallback: () => void
+) {
   bindArtStyleControl(refreshTextCallback);
   bindTypographyControls(refreshTextCallback);
   bindBoldItalicToggles();
@@ -45,7 +49,7 @@ export function bindAllControls(videoElement: HTMLVideoElement, renderFrameCallb
 }
 
 function bindTypographyControls(refreshTextCallback: () => void) {
-  ['fontFamily', 'textColor', 'fontSize', 'lineHeight', 'fontWeight'].forEach(id => {
+  ['fontFamily', 'textColor', 'fontSize', 'lineHeight', 'fontWeight'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => applyTextStyles(refreshTextCallback));
   });
@@ -67,19 +71,26 @@ function applyTextStyles(refreshTextCallback: () => void) {
   if (overlay) {
     overlay.style.color = color;
     overlay.style.fontFamily = family;
-    overlay.style.fontSize = size + "px";
+    overlay.style.fontSize = size + 'px';
     overlay.style.fontWeight = weight;
-    overlay.style.fontStyle = isItalic ? "italic" : "normal";
+    overlay.style.fontStyle = isItalic ? 'italic' : 'normal';
   }
 
   document.getElementById('valSize')!.textContent = size;
-  document.getElementById('valLineHeight')!.textContent = (document.getElementById('lineHeight') as HTMLInputElement).value;
+  document.getElementById('valLineHeight')!.textContent = (
+    document.getElementById('lineHeight') as HTMLInputElement
+  ).value;
 
-  state.currentFontSpec = `${isItalic ? "italic" : "normal"} ${weight} ${size}px ${family}`;
-  state.currentLineHeight = parseInt((document.getElementById('lineHeight') as HTMLInputElement).value);
+  state.currentFontSpec = `${isItalic ? 'italic' : 'normal'} ${weight} ${size}px ${family}`;
+  state.currentLineHeight = parseInt(
+    (document.getElementById('lineHeight') as HTMLInputElement).value
+  );
 
   if (state.storyText) {
-    state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec) as PreparedTextWithSegments;
+    state.parsedLayout = prepareWithSegments(
+      state.storyText,
+      state.currentFontSpec
+    ) as PreparedTextWithSegments;
   }
 
   state.needsRedraw = true;
@@ -94,13 +105,13 @@ function bindBoldItalicToggles() {
   if (boldBtn) {
     boldBtn.addEventListener('click', () => {
       boldBtn.classList.toggle('active');
-      weightInput.value = boldBtn.classList.contains('active') ? "700" : "400";
+      weightInput.value = boldBtn.classList.contains('active') ? '700' : '400';
 
       const headerText = weightInput.parentElement!.querySelector('span');
       const items = weightInput.parentElement!.querySelectorAll('li');
-      items.forEach(li => li.classList.remove('selected'));
+      items.forEach((li) => li.classList.remove('selected'));
 
-      const matchingItem = Array.from(items).find(li => li.dataset.value === weightInput.value);
+      const matchingItem = Array.from(items).find((li) => li.dataset.value === weightInput.value);
       if (matchingItem && headerText) {
         matchingItem.classList.add('selected');
         headerText.textContent = matchingItem.textContent;
@@ -113,8 +124,7 @@ function bindBoldItalicToggles() {
   if (italicBtn) {
     italicBtn.addEventListener('click', () => {
       italicBtn.classList.toggle('active');
-      document.getElementById('fontFamily')
-        ?.dispatchEvent(new Event('input', { bubbles: true }));
+      document.getElementById('fontFamily')?.dispatchEvent(new Event('input', { bubbles: true }));
     });
   }
 }
@@ -136,7 +146,7 @@ function bindFileUpload(videoElement: HTMLVideoElement) {
 
     let url;
     try {
-      if (file.type === "image/gif") {
+      if (file.type === 'image/gif') {
         url = await convertGifToWebm(file, (msg) => {
           document.getElementById('uploadBtnText')!.textContent = msg;
         });
@@ -144,20 +154,24 @@ function bindFileUpload(videoElement: HTMLVideoElement) {
         url = URL.createObjectURL(file);
       }
     } catch (err) {
-      console.warn("Failed to convert GIF, falling back to direct URL", err);
+      console.warn('Failed to convert GIF, falling back to direct URL', err);
       url = URL.createObjectURL(file);
     }
 
     document.getElementById('uploadBtnText')!.textContent = 'Change Media';
     videoElement.src = url;
     state.originalFilename = file.name;
-    
+
     // Generate Thumbnail
-    videoElement.addEventListener('loadeddata', () => {
-      const thumbCanvas = document.getElementById('thumbCanvas') as HTMLCanvasElement;
-      const ctx = thumbCanvas.getContext('2d')!;
-      ctx.drawImage(videoElement, 0, 0, thumbCanvas.width, thumbCanvas.height);
-    }, { once: true });
+    videoElement.addEventListener(
+      'loadeddata',
+      () => {
+        const thumbCanvas = document.getElementById('thumbCanvas') as HTMLCanvasElement;
+        const ctx = thumbCanvas.getContext('2d')!;
+        ctx.drawImage(videoElement, 0, 0, thumbCanvas.width, thumbCanvas.height);
+      },
+      { once: true }
+    );
 
     videoElement.play();
     setTimeout(() => {
@@ -189,7 +203,7 @@ function bindAsciiRampControl(refreshTextCallback: () => void) {
   if (!input) return;
 
   input.addEventListener('input', (e: any) => {
-    state.asciiRamp = e.target.value || " ";
+    state.asciiRamp = e.target.value || ' ';
     buildGlyphAtlas();
     state.needsRedraw = true;
 
@@ -198,7 +212,7 @@ function bindAsciiRampControl(refreshTextCallback: () => void) {
 }
 
 function bindSliderFillTracking() {
-  document.querySelectorAll('input[type="range"]').forEach(el => {
+  document.querySelectorAll('input[type="range"]').forEach((el) => {
     // Initial fill
     updateSliderFill(el as HTMLInputElement);
     // On-the-fly fill
@@ -209,15 +223,15 @@ function bindSliderFillTracking() {
 function bindArtStyleControl(refreshTextCallback: () => void) {
   const artStyleInput = document.getElementById('artStyle') as HTMLInputElement;
   const asciiSection = document.getElementById('asciiSettingsSection');
-  
+
   if (!artStyleInput || !asciiSection) return;
 
   const updateVisibility = (val: string) => {
-    state.artStyle = val as "original" | "grayscale" | "ascii";
-    
+    state.artStyle = val as 'original' | 'grayscale' | 'ascii';
+
     const textmodeCanvas = document.getElementById('textmodeCanvas');
     if (textmodeCanvas) {
-       textmodeCanvas.style.mixBlendMode = state.artStyle === 'ascii' ? 'screen' : 'normal';
+      textmodeCanvas.style.mixBlendMode = state.artStyle === 'ascii' ? 'screen' : 'normal';
     }
 
     if (state.artStyle === 'ascii') {
@@ -231,7 +245,7 @@ function bindArtStyleControl(refreshTextCallback: () => void) {
   };
 
   artStyleInput.addEventListener('input', (e: any) => updateVisibility(e.target.value));
-  
+
   // Initial run
   updateVisibility(artStyleInput.value);
 }
@@ -244,28 +258,28 @@ function updateSliderFill(slider: HTMLInputElement) {
 }
 
 function bindCustomDropdowns() {
-  document.querySelectorAll('.dropdown').forEach(dropdown => {
+  document.querySelectorAll('.dropdown').forEach((dropdown) => {
     const header = dropdown.querySelector('.dropdown-header') as HTMLElement;
     const headerText = header.querySelector('span');
     const hiddenInput = dropdown.querySelector('input[type="hidden"]') as HTMLInputElement;
 
     header.addEventListener('click', (e) => {
-      document.querySelectorAll('.dropdown').forEach(d => {
+      document.querySelectorAll('.dropdown').forEach((d) => {
         if (d !== dropdown) d.classList.remove('open');
       });
       dropdown.classList.toggle('open');
       e.stopPropagation();
     });
 
-    dropdown.querySelectorAll('li').forEach(item => {
+    dropdown.querySelectorAll('li').forEach((item) => {
       item.addEventListener('click', (e) => {
         if (headerText) {
           headerText.textContent = item.textContent;
           headerText.style.fontFamily = item.style.fontFamily;
         }
-        hiddenInput.value = item.dataset.value || "";
+        hiddenInput.value = item.dataset.value || '';
         dropdown.classList.remove('open');
-        dropdown.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
+        dropdown.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
         item.classList.add('selected');
         hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
         e.stopPropagation();
@@ -274,11 +288,15 @@ function bindCustomDropdowns() {
   });
 
   document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    document.querySelectorAll('.dropdown').forEach((d) => d.classList.remove('open'));
   });
 }
 
-function bindPlayerControls(videoElement: HTMLVideoElement, renderFrameCallback: () => void, refreshTextCallback: () => void) {
+function bindPlayerControls(
+  videoElement: HTMLVideoElement,
+  renderFrameCallback: () => void,
+  refreshTextCallback: () => void
+) {
   const playPauseBtn = document.getElementById('btnPlayPause');
   const seekSlider = document.getElementById('seekSlider') as HTMLInputElement;
   const timeDisplay = document.getElementById('timeDisplay');
@@ -308,11 +326,18 @@ function bindPlayerControls(videoElement: HTMLVideoElement, renderFrameCallback:
   }
 
   videoElement.addEventListener('timeupdate', () => {
-    if (!videoElement.duration || document.activeElement === seekSlider || !seekSlider || !timeDisplay) return;
+    if (
+      !videoElement.duration ||
+      document.activeElement === seekSlider ||
+      !seekSlider ||
+      !timeDisplay
+    )
+      return;
     const percent = (videoElement.currentTime / videoElement.duration) * 100;
     seekSlider.value = String(percent);
     seekSlider.style.setProperty('--seek-val', percent + '%');
-    timeDisplay.textContent = formatTime(videoElement.currentTime) + " / " + formatTime(videoElement.duration);
+    timeDisplay.textContent =
+      formatTime(videoElement.currentTime) + ' / ' + formatTime(videoElement.duration);
   });
 
   if (seekSlider && timeDisplay) {
@@ -320,7 +345,8 @@ function bindPlayerControls(videoElement: HTMLVideoElement, renderFrameCallback:
       if (!videoElement.duration) return;
       videoElement.currentTime = (e.target.value / 100) * videoElement.duration;
       seekSlider.style.setProperty('--seek-val', e.target.value + '%');
-      timeDisplay.textContent = formatTime(videoElement.currentTime) + " / " + formatTime(videoElement.duration);
+      timeDisplay.textContent =
+        formatTime(videoElement.currentTime) + ' / ' + formatTime(videoElement.duration);
       if (!state.isPlaying) {
         videoElement.requestVideoFrameCallback(() => {
           state.needsRedraw = true;
@@ -335,9 +361,17 @@ function bindPlayerControls(videoElement: HTMLVideoElement, renderFrameCallback:
       const container: any = document.getElementById('videoContainer');
       const doc: any = document;
       if (!document.fullscreenElement) {
-        container?.requestFullscreen?.() || container?.webkitRequestFullscreen?.();
+        if (container?.requestFullscreen) {
+          container.requestFullscreen();
+        } else if ((container as any)?.webkitRequestFullscreen) {
+          (container as any).webkitRequestFullscreen();
+        }
       } else {
-        doc.exitFullscreen?.() || doc.webkitExitFullscreen?.();
+        if (doc.exitFullscreen) {
+          doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        }
       }
     });
   }
@@ -366,7 +400,10 @@ function bindTextEditor(refreshTextCallback: () => void) {
   editor.addEventListener('input', (e: any) => {
     state.storyText = e.target.value;
     if (state.storyText) {
-      state.parsedLayout = prepareWithSegments(state.storyText, state.currentFontSpec) as PreparedTextWithSegments;
+      state.parsedLayout = prepareWithSegments(
+        state.storyText,
+        state.currentFontSpec
+      ) as PreparedTextWithSegments;
     }
 
     if (refreshTextCallback) refreshTextCallback();
@@ -383,7 +420,7 @@ function bindSidebarToggle() {
   const toggle = (isOpen: boolean) => {
     state.sidebarOpen = isOpen;
     sidebar.classList.toggle('sidebar-closed', !isOpen);
-    
+
     const onTransitionEnd = () => {
       window.dispatchEvent(new Event('resize'));
       sidebar.removeEventListener('transitionend', onTransitionEnd);
@@ -396,7 +433,7 @@ function bindSidebarToggle() {
 }
 
 function formatTime(seconds: number) {
-  if (isNaN(seconds)) return "0:00";
+  if (isNaN(seconds)) return '0:00';
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;

@@ -1,251 +1,379 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Text-Wrap Studio | Pretext</title>
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Text-Wrap Studio is an advanced browser-based tool to mask and wrap beautiful typography around your videos. Create stunning ASCII art overlays, dynamic silhouette text wrap masks, and export them directly from the browser.">
-    <meta name="keywords" content="Text-Wrap, Typography, Video Editor, WebGL, Pretext, ASCII Art, Video Overlay, Kinetic Typography">
-    <meta name="author" content="Pretext Studio">
-    
+    <meta
+      name="description"
+      content="Text-Wrap Studio is an advanced browser-based tool to mask and wrap beautiful typography around your videos. Create stunning ASCII art overlays, dynamic silhouette text wrap masks, and export them directly from the browser."
+    />
+    <meta
+      name="keywords"
+      content="Text-Wrap, Typography, Video Editor, WebGL, Pretext, ASCII Art, Video Overlay, Kinetic Typography"
+    />
+    <meta name="author" content="Pretext Studio" />
+
     <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Text-Wrap Studio | Pretext">
-    <meta property="og:description" content="Wrap beautiful typography around silhouettes in your videos. Create stunning ASCII art overlays and dynamic typography masks right in your browser.">
-    <meta property="og:image" content="/thumb.webp">
-    
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Text-Wrap Studio | Pretext" />
+    <meta
+      property="og:description"
+      content="Wrap beautiful typography around silhouettes in your videos. Create stunning ASCII art overlays and dynamic typography masks right in your browser."
+    />
+    <meta property="og:image" content="/thumb.webp" />
+
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="Text-Wrap Studio | Pretext">
-    <meta property="twitter:description" content="Wrap beautiful typography around silhouettes in your videos. Create stunning ASCII art overlays and dynamic typography masks right in your browser.">
-    <meta property="twitter:image" content="/thumb.webp">
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Text-Wrap Studio | Pretext" />
+    <meta
+      property="twitter:description"
+      content="Wrap beautiful typography around silhouettes in your videos. Create stunning ASCII art overlays and dynamic typography masks right in your browser."
+    />
+    <meta property="twitter:image" content="/thumb.webp" />
 
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="studio-theme">
+    <link rel="stylesheet" href="style.css" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CCBEWC4T3R"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
 
+      gtag('config', 'G-CCBEWC4T3R');
+    </script>
+  </head>
+  <body class="studio-theme">
     <div class="app-layout">
-        <aside class="sidebar">
-            <div class="sidebar-header desktop-only">
-                <h1 class="logo">Wrap Studio</h1>
-                <button class="icon-btn sidebar-toggle" id="btnSidebarClose" title="Hide Sidebar">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-                </button>
+      <aside class="sidebar">
+        <div class="sidebar-header desktop-only">
+          <h1 class="logo">Wrap Studio</h1>
+          <button class="icon-btn sidebar-toggle" id="btnSidebarClose" title="Hide Sidebar">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </svg>
+          </button>
+        </div>
+
+        <section class="panel upload-panel">
+          <img src="/video-intruction.webp" alt="Instruction" class="instruction-preview" />
+          <p class="upload-hint">
+            Use a video with a solid-color or removed background for best results. High contrast
+            works best.
+          </p>
+          <div class="upload-box" id="uploadZone">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            <span id="uploadBtnText">Import Media File</span>
+            <input type="file" id="fileInput" accept="video/*,image/gif" style="display: none" />
+          </div>
+
+          <div id="mediaPreview" class="media-preview" style="display: none">
+            <div class="preview-thumb-container">
+              <canvas id="thumbCanvas" width="80" height="45"></canvas>
             </div>
-            
-            <section class="panel upload-panel">
-                <img src="assets/video-intruction.webp" alt="Instruction" class="instruction-preview">
-                <p class="upload-hint">Use a video with a solid-color or removed background for best results. High contrast works best.</p>
-                <div class="upload-box" id="uploadZone">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                    <span id="uploadBtnText">Import Media File</span>
-                    <input type="file" id="fileInput" accept="video/*,image/gif" style="display:none">
-                </div>
+            <div class="media-meta">
+              <span class="media-filename" id="mediaFileName">filename.mp4</span>
+              <span class="media-status">READY FOR PROCESSING</span>
+            </div>
+          </div>
+        </section>
 
-                <div id="mediaPreview" class="media-preview" style="display:none">
-                    <div class="preview-thumb-container">
-                        <canvas id="thumbCanvas" width="80" height="45"></canvas>
-                    </div>
-                    <div class="media-meta">
-                        <span class="media-filename" id="mediaFileName">filename.mp4</span>
-                        <span class="media-status">READY FOR PROCESSING</span>
-                    </div>
-                </div>
-            </section>
+        <section class="panel">
+          <h3>Visual Mode</h3>
+          <div class="control">
+            <div class="dropdown" id="artStyleDropdown">
+              <div class="dropdown-header">
+                <span>ASCII</span>
+                <svg fill="white" height="24" viewBox="0 0 24 24" width="24">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+              <ul class="dropdown-list">
+                <li data-value="ascii" class="selected">ASCII</li>
+                <li data-value="original">Original</li>
+                <li data-value="grayscale">Grayscale</li>
+              </ul>
+              <input type="hidden" id="artStyle" value="ascii" />
+            </div>
+          </div>
 
-            <section class="panel">
-                <h3>Visual Mode</h3>
-                <div class="control">
-                    <div class="dropdown" id="artStyleDropdown">
-                        <div class="dropdown-header"><span>ASCII</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
-                        <ul class="dropdown-list">
-                            <li data-value="ascii" class="selected">ASCII</li>
-                            <li data-value="original">Original</li>
-                            <li data-value="grayscale">Grayscale</li>
-                        </ul>
-                        <input type="hidden" id="artStyle" value="ascii">
-                    </div>
-                </div>
+          <div id="asciiSettingsSection">
+            <div class="control">
+              <label>ASCII Font Size: <span id="asciiScaleVal">12</span>px</label>
+              <input type="range" class="slider" id="asciiScale" min="2" max="64" value="12" />
+            </div>
+            <div class="control">
+              <label>Character Set</label>
+              <input type="text" class="input" id="asciiRamp" value="wesker" spellcheck="false" />
+            </div>
+          </div>
+        </section>
 
-                <div id="asciiSettingsSection">
-                    <div class="control">
-                        <label>ASCII Font Size: <span id="asciiScaleVal">12</span>px</label>
-                        <input type="range" class="slider" id="asciiScale" min="2" max="64" value="12">
-                    </div>
-                    <div class="control">
-                        <label>Character Set</label>
-                        <input type="text" class="input" id="asciiRamp" value="wesker" spellcheck="false">
-                    </div>
-                </div>
-            </section>
+        <section class="panel">
+          <h3>Story</h3>
+          <textarea
+            id="textEditor"
+            class="textarea"
+            placeholder="Paste your story here..."
+          ></textarea>
+        </section>
 
-            <section class="panel">
-                <h3>Story</h3>
-                <textarea id="textEditor" class="textarea" placeholder="Paste your story here..."></textarea>
-            </section>
+        <section class="panel styling">
+          <h3>Typography</h3>
+          <div class="control-grid">
+            <div class="control">
+              <label>Font Family</label>
+              <div class="dropdown" id="fontDropdown">
+                <div class="dropdown-header">
+                  <span style="font-family: 'Poppins', sans-serif">Poppins</span>
+                  <svg fill="white" height="24" viewBox="0 0 24 24" width="24">
+                    <path d="M7 10l5 5 5-5z" />
+                  </svg>
+                </div>
+                <ul class="dropdown-list">
+                  <li
+                    data-value="'Poppins', sans-serif"
+                    class="selected"
+                    style="font-family: 'Poppins', sans-serif"
+                  >
+                    Poppins
+                  </li>
+                  <li data-value="'EB Garamond', serif" style="font-family: 'EB Garamond', serif">
+                    EB Garamond
+                  </li>
+                  <li data-value="'Nunito', sans-serif" style="font-family: 'Nunito', sans-serif">
+                    Nunito
+                  </li>
+                  <li
+                    data-value="'Montserrat', sans-serif"
+                    style="font-family: 'Montserrat', sans-serif"
+                  >
+                    Montserrat
+                  </li>
+                  <li
+                    data-value="'Playfair Display', serif"
+                    style="font-family: 'Playfair Display', serif"
+                  >
+                    Playfair Display
+                  </li>
+                  <li data-value="'Lora', serif" style="font-family: 'Lora', serif">Lora</li>
+                  <li data-value="'Outfit', sans-serif" style="font-family: 'Outfit', sans-serif">
+                    Outfit
+                  </li>
+                  <li data-value="'Sora', sans-serif" style="font-family: 'Sora', sans-serif">
+                    Sora
+                  </li>
+                  <li data-value="'Inter', sans-serif" style="font-family: 'Inter', sans-serif">
+                    Inter
+                  </li>
+                  <li
+                    data-value="'JetBrains Mono', monospace"
+                    style="font-family: 'JetBrains Mono', monospace"
+                  >
+                    JetBrains Mono
+                  </li>
+                  <li data-value="'Bebas Neue', cursive" style="font-family: 'Bebas Neue', cursive">
+                    Bebas Neue
+                  </li>
+                  <li data-value="'Cinzel', serif" style="font-family: 'Cinzel', serif">Cinzel</li>
+                </ul>
+                <input type="hidden" id="fontFamily" value="'Poppins', sans-serif" />
+              </div>
+            </div>
+            <div class="control">
+              <label>Color</label>
+              <input type="color" id="textColor" class="color-picker" value="#e0d1b1" />
+            </div>
+          </div>
 
-            <section class="panel styling">
-                <h3>Typography</h3>
-                <div class="control-grid">
-                    <div class="control">
-                        <label>Font Family</label>
-                        <div class="dropdown" id="fontDropdown">
-                            <div class="dropdown-header"><span style="font-family: 'Poppins', sans-serif">Poppins</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
-                            <ul class="dropdown-list">
-                                <li data-value="'Poppins', sans-serif" class="selected" style="font-family: 'Poppins', sans-serif">Poppins</li>
-                                <li data-value="'EB Garamond', serif" style="font-family: 'EB Garamond', serif">EB Garamond</li>
-                                <li data-value="'Nunito', sans-serif" style="font-family: 'Nunito', sans-serif">Nunito</li>
-                                <li data-value="'Montserrat', sans-serif" style="font-family: 'Montserrat', sans-serif">Montserrat</li>
-                                <li data-value="'Playfair Display', serif" style="font-family: 'Playfair Display', serif">Playfair Display</li>
-                                <li data-value="'Lora', serif" style="font-family: 'Lora', serif">Lora</li>
-                                <li data-value="'Outfit', sans-serif" style="font-family: 'Outfit', sans-serif">Outfit</li>
-                                <li data-value="'Sora', sans-serif" style="font-family: 'Sora', sans-serif">Sora</li>
-                                <li data-value="'Inter', sans-serif" style="font-family: 'Inter', sans-serif">Inter</li>
-                                <li data-value="'JetBrains Mono', monospace" style="font-family: 'JetBrains Mono', monospace">JetBrains Mono</li>
-                                <li data-value="'Bebas Neue', cursive" style="font-family: 'Bebas Neue', cursive">Bebas Neue</li>
-                                <li data-value="'Cinzel', serif" style="font-family: 'Cinzel', serif">Cinzel</li>
-                            </ul>
-                            <input type="hidden" id="fontFamily" value="'Poppins', sans-serif">
-                        </div>
-                    </div>
-                    <div class="control">
-                        <label>Color</label>
-                        <input type="color" id="textColor" class="color-picker" value="#e0d1b1">
-                    </div>
-                </div>
+          <div class="control">
+            <label>Font Size: <span id="valSize">16</span>px</label>
+            <input type="range" class="slider" id="fontSize" min="10" max="40" value="17" />
+          </div>
 
-                <div class="control">
-                    <label>Font Size: <span id="valSize">16</span>px</label>
-                    <input type="range" class="slider" id="fontSize" min="10" max="40" value="17">
-                </div>
+          <div class="control">
+            <label>Line Spacing: <span id="valLineHeight">24</span>px</label>
+            <input type="range" class="slider" id="lineHeight" min="14" max="60" value="24" />
+          </div>
 
-                <div class="control">
-                    <label>Line Spacing: <span id="valLineHeight">24</span>px</label>
-                    <input type="range" class="slider" id="lineHeight" min="14" max="60" value="24">
-                </div>
+          <div class="style-toggles">
+            <button class="toggle" id="toggleBold"><b>B</b></button>
+            <button class="toggle" id="toggleItalic"><i>I</i></button>
+            <div class="dropdown">
+              <div class="dropdown-header">
+                <span>700 (Bold)</span>
+                <svg fill="white" height="24" viewBox="0 0 24 24" width="24">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+              <ul class="dropdown-list">
+                <li data-value="400">400 (Normal)</li>
+                <li data-value="600">600 (Semi)</li>
+                <li data-value="700" class="selected">700 (Bold)</li>
+              </ul>
+              <input type="hidden" id="fontWeight" value="700" />
+            </div>
+          </div>
+        </section>
+      </aside>
 
-                <div class="style-toggles">
-                    <button class="toggle" id="toggleBold"><b>B</b></button>
-                    <button class="toggle" id="toggleItalic"><i>I</i></button>
-                    <div class="dropdown">
-                        <div class="dropdown-header"><span>700 (Bold)</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
-                        <ul class="dropdown-list">
-                            <li data-value="400">400 (Normal)</li>
-                            <li data-value="600">600 (Semi)</li>
-                            <li data-value="700" class="selected">700 (Bold)</li>
-                        </ul>
-                        <input type="hidden" id="fontWeight" value="700">
-                    </div>
-                </div>
-            </section>
-        </aside>
+      <!-- Main Workspace -->
+      <main class="workspace" id="videoContainer">
+        <div
+          id="recordingIndicator"
+          class="recording-indicator"
+          style="display: none; z-index: 100"
+        ></div>
 
-        <!-- Main Workspace -->
-        <main class="workspace" id="videoContainer">
-            <div id="recordingIndicator" class="recording-indicator" style="display:none; z-index:100;"></div>
-            
-            <!-- Media Layer -->
-            <video id="y" crossOrigin="anonymous" loop playsInline preload="auto" class="media-layer"></video>
-            
-            <!-- Canvases -->
-            <canvas id="canvasDisplay" class="synced-canvas"></canvas>
-            <canvas id="textmodeCanvas" class="synced-canvas" style="mix-blend-mode: screen;"></canvas>
-            
-            <!-- Text Overlay -->
-            <div id="textOverlay" class="text-overlay"></div>
-            
-            <!-- Player Controls -->
-            <div class="player-controls">
-                <div class="seek-container">
-                    <input type="range" id="seekSlider" min="0" max="100" value="0" step="0.1">
-                </div>
-                
-                <div class="controls-row">
-                    <div class="controls-left">
-                        <button class="icon-btn" id="btnPlayPause" title="Play/Pause target">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                        </button>
-                        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-                    </div>
-                    
-                    <div class="controls-right">
-                        <button class="icon-btn" id="btnFullscreen" title="Fullscreen Mode">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                        </button>
-                        <button class="icon-btn export-btn" id="btnExport" title="Export Session (WebM)">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                        </button>
-                    </div>
-                </div>
+        <!-- Media Layer -->
+        <video
+          id="y"
+          crossorigin="anonymous"
+          loop
+          playsinline
+          preload="auto"
+          class="media-layer"
+        ></video>
+
+        <!-- Canvases -->
+        <canvas id="canvasDisplay" class="synced-canvas"></canvas>
+        <canvas id="textmodeCanvas" class="synced-canvas" style="mix-blend-mode: screen"></canvas>
+
+        <!-- Text Overlay -->
+        <div id="textOverlay" class="text-overlay"></div>
+
+        <!-- Player Controls -->
+        <div class="player-controls">
+          <div class="seek-container">
+            <input type="range" id="seekSlider" min="0" max="100" value="0" step="0.1" />
+          </div>
+
+          <div class="controls-row">
+            <div class="controls-left">
+              <button class="icon-btn" id="btnPlayPause" title="Play/Pause target">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+              <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
             </div>
 
-            <!-- Loader -->
-            <div id="statusLabel" class="loader-container">
-                <div class="spinner"></div>
+            <div class="controls-right">
+              <button class="icon-btn" id="btnFullscreen" title="Fullscreen Mode">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"
+                  />
+                </svg>
+              </button>
+              <button class="icon-btn export-btn" id="btnExport" title="Export Session (WebM)">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                </svg>
+              </button>
             </div>
-        </main>
+          </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="statusLabel" class="loader-container">
+          <div class="spinner"></div>
+        </div>
+      </main>
     </div>
 
     <!-- Export Settings Modal -->
     <dialog id="exportModal" class="export-modal">
-        <div class="modal-content">
-            <h2>EXPORT VIDEO</h2>
-            
-            <div class="modal-body">
-                <div class="control-group">
-                    <label>Output Resolution</label>
-                    <div class="dropdown">
-                        <div class="dropdown-header"><span>720p (HD)</span> <svg fill="white" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg></div>
-                        <ul class="dropdown-list">
-                            <li data-value="1080">1080p (FHD)</li>
-                            <li data-value="720" class="selected">720p (HD)</li>
-                            <li data-value="480">480p (SD)</li>
-                        </ul>
-                        <input type="hidden" id="exportRes" value="720">
-                    </div>
-                </div>
-                
-                <div class="control-group checkbox-group">
-                    <label>
-                        <input type="checkbox" id="exportAudio" checked>
-                        Include Audio
-                    </label>
-                </div>
+      <div class="modal-content">
+        <h2>EXPORT VIDEO</h2>
 
-                <!-- Progress Bar -->
-                <div id="exportProgressUi" style="display:none; margin-top: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
-                        <label style="margin: 0;">Processing...</label>
-                        <span id="exportTimer" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--re-gold);">00:00</span>
-                    </div>
-                    <div class="progress-track">
-                        <div id="exportProgressBar" class="progress-fill"></div>
-                    </div>
-                    <div id="exportStatusText" class="status-subtext">Preparing individual frames...</div>
-                </div>
+        <div class="modal-body">
+          <div class="control-group">
+            <label>Output Resolution</label>
+            <div class="dropdown">
+              <div class="dropdown-header">
+                <span>720p (HD)</span>
+                <svg fill="white" height="24" viewBox="0 0 24 24" width="24">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+              <ul class="dropdown-list">
+                <li data-value="1080">1080p (FHD)</li>
+                <li data-value="720" class="selected">720p (HD)</li>
+                <li data-value="480">480p (SD)</li>
+              </ul>
+              <input type="hidden" id="exportRes" value="720" />
             </div>
+          </div>
 
-            <div class="modal-actions" id="exportActions">
-                <button class="re-btn" id="btnCancelExport">Cancel</button>
-                <button class="re-btn re-btn--primary" id="btnStartExport">Export</button>
+          <div class="control-group checkbox-group">
+            <label>
+              <input type="checkbox" id="exportAudio" checked />
+              Include Audio
+            </label>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="exportProgressUi" style="display: none; margin-top: 24px">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                margin-bottom: 8px;
+              "
+            >
+              <label style="margin: 0">Processing...</label>
+              <span
+                id="exportTimer"
+                style="
+                  font-family: 'JetBrains Mono', monospace;
+                  font-size: 12px;
+                  color: var(--re-gold);
+                "
+                >00:00</span
+              >
             </div>
+            <div class="progress-track">
+              <div id="exportProgressBar" class="progress-fill"></div>
+            </div>
+            <div id="exportStatusText" class="status-subtext">Preparing individual frames...</div>
+          </div>
         </div>
+
+        <div class="modal-actions" id="exportActions">
+          <button class="re-btn" id="btnCancelExport">Cancel</button>
+          <button class="re-btn re-btn--primary" id="btnStartExport">Export</button>
+        </div>
+      </div>
     </dialog>
 
     <!-- Cancellation Confirmation -->
-    <dialog id="cancelConfirmModal" class="export-modal" style="max-width: 320px; text-align: center;">
-        <div class="modal-content">
-            <h3 style="margin-top: 0;">Cancel Export?</h3>
-            <p style="font-size: 14px; opacity: 0.8; margin-bottom: 24px;">Your progress will be lost. Are you sure?</p>
-            <div class="modal-actions" style="justify-content: center; gap: 12px;">
-                <button class="re-btn" id="btnCancelNo">Keep Going</button>
-                <button class="re-btn re-btn--primary" id="btnCancelYes" style="background: #a33;">Yes, Stop</button>
-            </div>
+    <dialog
+      id="cancelConfirmModal"
+      class="export-modal"
+      style="max-width: 320px; text-align: center"
+    >
+      <div class="modal-content">
+        <h3 style="margin-top: 0">Cancel Export?</h3>
+        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 24px">
+          Your progress will be lost. Are you sure?
+        </p>
+        <div class="modal-actions" style="justify-content: center; gap: 12px">
+          <button class="re-btn" id="btnCancelNo">Keep Going</button>
+          <button class="re-btn re-btn--primary" id="btnCancelYes" style="background: #a33">
+            Yes, Stop
+          </button>
         </div>
+      </div>
     </dialog>
 
     <script type="module" src="/main.ts"></script>
-</body>
+  </body>
 </html>

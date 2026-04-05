@@ -9,26 +9,28 @@ const BACKGROUND_COLOR = [0.055, 0.055, 0.055];
 const asciiCanvas = document.getElementById('textmodeCanvas') as HTMLCanvasElement;
 const compositeCanvas = document.getElementById('canvasDisplay') as HTMLCanvasElement;
 
-const gl = asciiCanvas.getContext("webgl", { 
-  alpha: false, 
-  antialias: false, 
-  preserveDrawingBuffer: true 
+const gl = asciiCanvas.getContext('webgl', {
+  alpha: false,
+  antialias: false,
+  preserveDrawingBuffer: true,
 }) as WebGLRenderingContext;
-const ctx2d = compositeCanvas.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
+const ctx2d = compositeCanvas.getContext('2d', {
+  willReadFrequently: true,
+}) as CanvasRenderingContext2D;
 
 function compileShader(source: string, type: number): WebGLShader {
   const shader = gl.createShader(type);
-  if (!shader) throw new Error("Failed to create WebGLShader");
+  if (!shader) throw new Error('Failed to create WebGLShader');
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    throw new Error(gl.getShaderInfoLog(shader) || "Unknown compilation error");
+    throw new Error(gl.getShaderInfoLog(shader) || 'Unknown compilation error');
   }
   return shader;
 }
 
 const program = gl.createProgram();
-if (!program) throw new Error("Failed to create WebGLProgram");
+if (!program) throw new Error('Failed to create WebGLProgram');
 gl.attachShader(program, compileShader(VERTEX_SHADER_SOURCE, gl.VERTEX_SHADER));
 gl.attachShader(program, compileShader(FRAGMENT_SHADER_SOURCE, gl.FRAGMENT_SHADER));
 gl.linkProgram(program);
@@ -37,20 +39,20 @@ gl.useProgram(program);
 const quadBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-const positionAttrib = gl.getAttribLocation(program, "a_pos");
+const positionAttrib = gl.getAttribLocation(program, 'a_pos');
 gl.enableVertexAttribArray(positionAttrib);
 gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 0, 0);
 
 const uniforms: Record<string, WebGLUniformLocation | null> = {
-  resolution: gl.getUniformLocation(program, "u_resolution"),
-  cellSize:   gl.getUniformLocation(program, "u_cellSize"),
-  gridSize:   gl.getUniformLocation(program, "u_gridSize"),
-  silOffset:  gl.getUniformLocation(program, "u_silOffset"),
-  numChars:   gl.getUniformLocation(program, "u_numChars"),
-  background: gl.getUniformLocation(program, "u_bg"),
-  videoTex:   gl.getUniformLocation(program, "u_video"),
-  glyphsTex:  gl.getUniformLocation(program, "u_glyphs"),
-  styleId:    gl.getUniformLocation(program, "u_styleId"),
+  resolution: gl.getUniformLocation(program, 'u_resolution'),
+  cellSize: gl.getUniformLocation(program, 'u_cellSize'),
+  gridSize: gl.getUniformLocation(program, 'u_gridSize'),
+  silOffset: gl.getUniformLocation(program, 'u_silOffset'),
+  numChars: gl.getUniformLocation(program, 'u_numChars'),
+  background: gl.getUniformLocation(program, 'u_bg'),
+  videoTex: gl.getUniformLocation(program, 'u_video'),
+  glyphsTex: gl.getUniformLocation(program, 'u_glyphs'),
+  styleId: gl.getUniformLocation(program, 'u_styleId'),
 };
 
 const videoTexture = gl.createTexture();
@@ -73,21 +75,21 @@ gl.uniform3f(uniforms.background, BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACK
 
 export function buildGlyphAtlas(): CellDimensions {
   const measureCanvas = new OffscreenCanvas(100, 100);
-  const measureCtx = measureCanvas.getContext("2d");
-  if (!measureCtx) throw new Error("Could not get 2d context");
+  const measureCtx = measureCanvas.getContext('2d');
+  if (!measureCtx) throw new Error('Could not get 2d context');
 
   measureCtx.font = GLYPH_FONT;
-  const charWidth = Math.ceil(measureCtx.measureText("@").width);
+  const charWidth = Math.ceil(measureCtx.measureText('@').width);
   const charHeight = GLYPH_FONT_SIZE + 2;
   const charCount = state.asciiRamp.length;
 
   const atlasCanvas = new OffscreenCanvas(charWidth * charCount, charHeight);
-  const atlasCtx = atlasCanvas.getContext("2d");
-  if (!atlasCtx) throw new Error("Could not get 2d context for atlas");
+  const atlasCtx = atlasCanvas.getContext('2d');
+  if (!atlasCtx) throw new Error('Could not get 2d context for atlas');
 
   atlasCtx.font = GLYPH_FONT;
-  atlasCtx.textBaseline = "top";
-  atlasCtx.fillStyle = "#fff";
+  atlasCtx.textBaseline = 'top';
+  atlasCtx.fillStyle = '#fff';
   for (let i = 0; i < charCount; i++) {
     atlasCtx.fillText(state.asciiRamp[i], i * charWidth, 1);
   }
@@ -100,7 +102,7 @@ export function buildGlyphAtlas(): CellDimensions {
 }
 
 export function resizeCanvases() {
-  const container = document.getElementById("videoContainer");
+  const container = document.getElementById('videoContainer');
   const dpr = window.devicePixelRatio || 1;
   const width = container?.clientWidth || window.innerWidth;
   let height = container?.clientHeight || window.innerHeight;
@@ -128,15 +130,15 @@ import type { StyleRenderer } from './types.js';
 const STYLE_RENDERERS: Record<string, StyleRenderer> = {
   ascii: AsciiRenderer,
   original: OriginalRenderer,
-  grayscale: GrayscaleRenderer
+  grayscale: GrayscaleRenderer,
 };
 
 export function renderStyleFrame(params: Partial<RendererParams>) {
   const strategy = STYLE_RENDERERS[state.artStyle] || STYLE_RENDERERS.ascii;
-  strategy.render({ 
-    gl, 
-    ctx: ctx2d, 
-    videoTexture: videoTexture as WebGLTexture, 
+  strategy.render({
+    gl,
+    ctx: ctx2d,
+    videoTexture: videoTexture as WebGLTexture,
     uniforms,
     asciiRampLength: state.asciiRamp.length,
     viewportWidth: asciiCanvas.width,
@@ -147,7 +149,7 @@ export function renderStyleFrame(params: Partial<RendererParams>) {
     charH: state.cellDimensions.charH,
     silhouetteOffsetX: 0,
     videoSource: asciiCanvas,
-    ...params
+    ...params,
   });
 }
 

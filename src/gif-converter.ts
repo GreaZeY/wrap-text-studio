@@ -1,6 +1,9 @@
 import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 
-export async function convertGifToWebm(file: File, progressCallback: (msg: string) => void): Promise<string> {
+export async function convertGifToWebm(
+  file: File,
+  progressCallback: (msg: string) => void
+): Promise<string> {
   const globalAny = window as any;
   if (!globalAny.ImageDecoder || !window.VideoEncoder) {
     // Fallback: unsupported browser (Safari/Firefox). Just hope it plays in <video>.
@@ -9,10 +12,10 @@ export async function convertGifToWebm(file: File, progressCallback: (msg: strin
 
   const arrayBuffer = await file.arrayBuffer();
   const decoder = new globalAny.ImageDecoder({ type: 'image/gif', data: arrayBuffer });
-  
+
   await decoder.tracks.ready;
   if (!decoder.tracks.selectedTrack) {
-    throw new Error("No video track in GIF");
+    throw new Error('No video track in GIF');
   }
 
   // To find width/height, decode the first frame
@@ -25,13 +28,13 @@ export async function convertGifToWebm(file: File, progressCallback: (msg: strin
     video: {
       codec: 'V_VP9',
       width: width,
-      height: height
-    }
+      height: height,
+    },
   });
 
   const videoEncoder = new VideoEncoder({
     output: (chunk, metadata) => muxer.addVideoChunk(chunk, metadata as any),
-    error: (e) => console.error("GIF Encoder Error:", e)
+    error: (e) => console.error('GIF Encoder Error:', e),
   });
 
   videoEncoder.configure({
@@ -39,7 +42,7 @@ export async function convertGifToWebm(file: File, progressCallback: (msg: strin
     width: width,
     height: height,
     bitrate: 5_000_000,
-    framerate: 30
+    framerate: 30,
   });
 
   let timestamp = 0;
@@ -49,12 +52,15 @@ export async function convertGifToWebm(file: File, progressCallback: (msg: strin
     try {
       const result = await decoder.decode({ frameIndex: i });
       // duration in ms. Multiply by 1000 for microseconds
-      const durationUs = (result.image.duration !== null && result.image.duration > 0) ? result.image.duration : 100000;
-      
+      const durationUs =
+        result.image.duration !== null && result.image.duration > 0
+          ? result.image.duration
+          : 100000;
+
       const frame = new VideoFrame(result.image as any, { timestamp, duration: durationUs });
       videoEncoder.encode(frame);
       frame.close();
-      
+
       timestamp += durationUs;
       i++;
 

@@ -7,13 +7,21 @@ let cachedRows = 0;
 
 const BACKGROUND_TOLERANCE = 15;
 
-export function detectSilhouette(viewportWidth: number, viewportHeight: number, cellW: number, cellH: number, videoSource: HTMLVideoElement | HTMLCanvasElement): SilhouetteData {
+export function detectSilhouette(
+  viewportWidth: number,
+  viewportHeight: number,
+  cellW: number,
+  cellH: number,
+  videoSource: HTMLVideoElement | HTMLCanvasElement
+): SilhouetteData {
   const cols = Math.ceil(viewportWidth / cellW);
   const rows = Math.ceil(viewportHeight / cellH);
 
   if (!samplingCanvas || cachedCols !== cols || cachedRows !== rows || !samplingCtx) {
     samplingCanvas = new OffscreenCanvas(cols, rows);
-    samplingCtx = samplingCanvas.getContext("2d", { willReadFrequently: true }) as OffscreenCanvasRenderingContext2D;
+    samplingCtx = samplingCanvas.getContext('2d', {
+      willReadFrequently: true,
+    }) as OffscreenCanvasRenderingContext2D;
     cachedCols = cols;
     cachedRows = rows;
   }
@@ -38,9 +46,11 @@ export function detectSilhouette(viewportWidth: number, viewportHeight: number, 
       const g = pixels[offset + 1];
       const b = pixels[offset + 2];
 
-      if (Math.abs(r - bgR) < BACKGROUND_TOLERANCE &&
-          Math.abs(g - bgG) < BACKGROUND_TOLERANCE &&
-          Math.abs(b - bgB) < BACKGROUND_TOLERANCE) {
+      if (
+        Math.abs(r - bgR) < BACKGROUND_TOLERANCE &&
+        Math.abs(g - bgG) < BACKGROUND_TOLERANCE &&
+        Math.abs(b - bgB) < BACKGROUND_TOLERANCE
+      ) {
         continue;
       }
 
@@ -58,11 +68,18 @@ export function detectSilhouette(viewportWidth: number, viewportHeight: number, 
   return { leftEdges, rightEdges, rows, charW: cellW, charH: cellH };
 }
 
-export function hasSilhouetteChanged(currentLeft: Int32Array, currentRight: Int32Array, previousLeft: Int32Array | null, previousRight: Int32Array | null): boolean {
+export function hasSilhouetteChanged(
+  currentLeft: Int32Array,
+  currentRight: Int32Array,
+  previousLeft: Int32Array | null,
+  previousRight: Int32Array | null
+): boolean {
   if (!previousLeft || !previousRight || previousLeft.length !== currentLeft.length) return true;
   for (let i = 0; i < currentLeft.length; i += 4) {
-    if (Math.abs(currentLeft[i] - previousLeft[i]) > 2 ||
-        Math.abs(currentRight[i] - previousRight[i]) > 2) {
+    if (
+      Math.abs(currentLeft[i] - previousLeft[i]) > 2 ||
+      Math.abs(currentRight[i] - previousRight[i]) > 2
+    ) {
       return true;
     }
   }
